@@ -2,12 +2,13 @@
 //@ int(label="Channel for denominator", style = "spinner") Channel_Denom
 //@ int(label="Channel for transmitted light -- select 0 if none", style = "spinner") Channel_Trans
 //@ string(label="Background subtraction method", choices={"None", "Fixed values", "Measured from image area"}, style="listBox") Background_Method
+//@ string(label="Noise subtraction method", choices={"None", "Fixed values", "Measured from image area"}, style="listBox") Noise_Method
 //@ File(label = "Output folder:", style = "directory") outputDir
 
 // biosensor.ijm
 // ImageJ macro to generate a ratio image from a multichannel Z stack with interactive background selection
 // Input: multi-channel Z stack image
-// Output: mask and ratio images, results, ROI set, log of background levels
+// Output: mask and ratio images, results, ROI set, log of background and noise levels
 // Theresa Swayne, Columbia University, 2022-2023
 
 // TO USE: Open a multi-channel Z stack image. Run the macro. 
@@ -38,16 +39,31 @@ if (Channel_Trans != 0) {
 	transImage = "C"+Channel_Trans+"-"+title;
 	}
 
-// ---- Background handling ---
+// ---- Background and noise handling ---
+// Background values are subtracted from each channel before initial segmentation
+// Noise values are used to threshold each channel after segmentation, before ratioing
+// Noise is estimated as the standard deviation of the background
 
-if (Background_Method == "Measured from image area") {
-	print("Subtracting user-selected background");
+if (Background_Method == "Measured from image area" || Noise_Method == "Measured from image area") {
+	print("Measuring user-selected background");
 	measBG = measureBackground(Channel_Num, Channel_Denom, Channel_Trans);
 	numBG = measBG[0];
-	denomBG = measBG[1];
-	print("Measured numerator channel "+Channel_Num+" background", numBG);
-	print("Measured denominator channel "+Channel_Denom+" background", denomBG);
-	}
+	denomBG = measBG[2];
+	
+	if (Noise_Method == "Measured from image area") { // measure both bg and noise
+		numNoise = measBG[1];
+		denomNoise = measBG[3];
+		print("Measured numerator channel "+Channel_Num+" background mean", numBG, ", StdDev",numNoise);
+		print("Measured denominator channel "+Channel_Denom+" background mean", denomBG, ",StdDev",denomNoise);
+		} // measure both bg and noise
+	else { // measure only bg
+		numNoise = 1;
+		denomNoise = 1;
+		print("Measured numerator channel "+Channel_Num+" background mean", numBG);
+		print("Measured denominator channel "+Channel_Denom+" background mean", denomBG);
+		} // measure only bg
+	} // measure bg and/or noise
+	
 else if (Background_Method == "Fixed values") {
 	Dialog.create("Enter Fixed Background Values");
 	Dialog.addNumber("Numerator channel "+Channel_Num+" background", 0);
@@ -64,6 +80,8 @@ else {
 	print("No background was subtracted");
 	}
 
+// subtract background
+
 selectWindow(numImage);
 run("Select None");
 run("Subtract...", "value="+numBG+" stack");
@@ -72,6 +90,25 @@ selectWindow(denomImage);
 run("Select None");
 run("Subtract...", "value="+denomBG+" stack");
 
+// set noise level if not interactively measured
+
+if (Noise_Method == "Fixed values") {
+	Dialog.create("Enter Fixed Noise Values");
+	Dialog.addNumber("Numerator channel "+Channel_Num+" noise", 1);
+	Dialog.addNumber("Denominator channel "+Channel_Denom+" noise", 1);
+	Dialog.show();
+	numNoise = Dialog.getNumber();
+	denomNoise = Dialog.getNumber();
+	print("Entered numerator channel "+Channel_Num+" background", numNoise);
+	print("Entered denominator channel "+Channel_Denom+" background", denomNoise);
+	}
+else if (Noise_Method == "None") {
+	
+	numNoise = 1;
+	denomNoise = 1;
+	print("No noise level was provided");
+	
+}
 // ---- Segmentation and ratioing ----
 
 // threshold on the sum of the 2 images
@@ -89,23 +126,32 @@ rename("Mask");
 
 // apply the mask to each channel by multiplication
 // (a 32-bit result is required so we can change the background to NaN later)
+// Apply an additional threshold based on the noise level to eliminate erroneous ratios caused by low signal
+
 imageCalculator("Multiply create 32-bit stack", numImage, "Mask");
 selectWindow("Result of "+numImage);
 rename("Masked Num");
+selectWindow("Masked Num");
+setThreshold(numNoise, 1000000000000000000000000000000.0000); // this should ensure all mask pixels are selected 
+run("NaN Background", "stack");
 
 imageCalculator("Multiply create 32-bit stack", denomImage, "Mask");
 selectWindow("Result of "+denomImage);
 rename("Masked Denom");
+selectWindow("Masked Denom");
+setThreshold(denomNoise, 1000000000000000000000000000000.0000); // this should ensure all mask pixels are selected 
+run("NaN Background", "stack");
 
 // calculate the ratio image
 imageCalculator("Divide create 32-bit stack", "Masked Num","Masked Denom");
 selectWindow("Result of Masked Num");
 rename("Ratio");
 
+// TODO -- delete?
 // set background pixels to NaN
-selectWindow("Ratio");
-setThreshold(1.0000, 1000000000000000000000000000000.0000); // this should ensure all mask pixels are selected 
-run("NaN Background", "stack");
+//selectWindow("Ratio");
+//setThreshold(1.0000, 1000000000000000000000000000000.0000); // this should ensure all mask pixels are selected 
+//run("NaN Background", "stack");
 
 // ---- Select cells and measure ----
 
@@ -155,7 +201,8 @@ run("Clear Results");
 
 function measureBackground(Num, Denom, Trans) { 
 	// Measures background from a user-specified ROI
-	// Returns the mean stack background values (rounded to nearest integer) in numerator and denominator channels
+	// Returns the mean and standard deviation of stack background values
+	//   (rounded to nearest integer) in numerator and denominator channels
 	
 	if (Trans != 0) {
 		transImage = "C"+Trans+"-"+title;
@@ -170,16 +217,15 @@ function measureBackground(Num, Denom, Trans) {
 	waitForUser("Mark background", "Draw a background area, then click OK");
 	run("Set Measurements...", "mean redirect=None decimal=2");
 	
-	// measure and subtract background in numerator channel
+	// measure background in numerator channel
 	selectWindow(numImage);
 	run("Measure Stack...");
 	numBGs = Table.getColumn("Mean");
 	Array.getStatistics(numBGs, min, max, mean, stdDev);
 	numMeasBackground = round(mean);
-	//print("Numerator channel",Num, "background = ",numMeasBackground);
+	numMeasNoise = round(stdDev)
 
-	
-	// measure and subtract background in denominator channel
+	// measure background in denominator channel
 	run("Clear Results");
 	selectWindow(denomImage);
 	run("Restore Selection"); // TODO: save this in the ROI manager
@@ -187,10 +233,9 @@ function measureBackground(Num, Denom, Trans) {
 	denomBGs = Table.getColumn("Mean");
 	Array.getStatistics(denomBGs, min, max, mean, stdDev);
 	denomMeasBackground = round(mean);
-	//print("Denominator channel",Denom, "background = ",denomMeasBackground);
+	denomMeasNoise = round(stdDev)
 
-
-	backgrounds = newArray(numMeasBackground, denomMeasBackground);
+	results = newArray(numMeasBackground, numMeasNoise, denomMeasBackground, denomMeasNoise);
 	return backgrounds;
 	}
 // measureBackground function
