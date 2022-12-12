@@ -44,43 +44,83 @@ if (Channel_Trans != 0) {
 // Noise values are used to threshold each channel after segmentation, before ratioing
 // Noise is estimated as the standard deviation of the background
 
-if (Background_Method == "Measured from image area" || Noise_Method == "Measured from image area") {
-	print("Measuring user-selected background");
+
+if (Background_Method == "Measured from image area" || Noise_Method == "Measured from image area") { // interactive selection
+	print("Measuring user-selected area");
 	measBG = measureBackground(Channel_Num, Channel_Denom, Channel_Trans);
-	numBG = measBG[0];
-	denomBG = measBG[2];
 	
-	if (Noise_Method == "Measured from image area") { // measure both bg and noise
+	if (Background_Method == "Measured from image area") { // use measured bg 
+		numBG = measBG[0];
+		denomBG = measBG[2];
+	
+		if (Noise_Method == "Measured from image area") { // use measured bg AND noise
+			numNoise = measBG[1];
+			denomNoise = measBG[3];
+			print("Measured numerator channel "+Channel_Num+" background mean", numBG, ", StdDev",numNoise);
+			print("Measured denominator channel "+Channel_Denom+" background mean", denomBG, ",StdDev",denomNoise);
+				} // end both bg and noise
+			
+		else { // use measured bg ONLY
+			numNoise = 1; // default noise value
+			denomNoise = 1;
+			print("Measured numerator channel "+Channel_Num+" background mean", numBG);
+			print("Measured denominator channel "+Channel_Denom+" background mean", denomBG);
+				} // end measure bg ONLY
+
+		} // end measured bg
+		
+	else { // use measured noise ONLY
+		numBG = 0;
+		denomBG = 0;
 		numNoise = measBG[1];
 		denomNoise = measBG[3];
-		print("Measured numerator channel "+Channel_Num+" background mean", numBG, ", StdDev",numNoise);
-		print("Measured denominator channel "+Channel_Denom+" background mean", denomBG, ",StdDev",denomNoise);
-		} // measure both bg and noise
-	else { // measure only bg
+		print("Measured numerator channel "+Channel_Num+" background StdDev",numNoise);
+		print("Measured denominator channel "+Channel_Denom+" background StdDev",denomNoise);
+		} // end measure noise ONLY
+			
+	} // end interactive selection 
+
+else { // no interactive selection
+	
+	// set background level if not interactively measured
+	
+	if (Background_Method == "Fixed values") {
+		Dialog.create("Enter Fixed Background Values");
+		Dialog.addNumber("Numerator channel "+Channel_Num+" background", 0);
+		Dialog.addNumber("Denominator channel "+Channel_Denom+" background", 0);
+		Dialog.show();
+		numBG = Dialog.getNumber();
+		denomBG = Dialog.getNumber();
+		print("Entered numerator channel "+Channel_Num+" background", numBG);
+		print("Entered denominator channel "+Channel_Denom+" background", denomBG);
+		}
+	
+	if (Background_Method == "None") {
+		numBG = 0;
+		denomBG = 0;
+		print("No background was subtracted");
+		}
+
+	// set noise level if not interactively measured
+	
+	if (Noise_Method == "Fixed values") {
+		Dialog.create("Enter Fixed Noise Values");
+		Dialog.addNumber("Numerator channel "+Channel_Num+" noise", 1);
+		Dialog.addNumber("Denominator channel "+Channel_Denom+" noise", 1);
+		Dialog.show();
+		numNoise = Dialog.getNumber();
+		denomNoise = Dialog.getNumber();
+		print("Entered numerator channel "+Channel_Num+" noise", numNoise);
+		print("Entered denominator channel "+Channel_Denom+" noise", denomNoise);
+		}
+	if (Noise_Method == "None") {
 		numNoise = 1;
 		denomNoise = 1;
-		print("Measured numerator channel "+Channel_Num+" background mean", numBG);
-		print("Measured denominator channel "+Channel_Denom+" background mean", denomBG);
-		} // measure only bg
-	} // measure bg and/or noise
-	
-else if (Background_Method == "Fixed values") {
-	Dialog.create("Enter Fixed Background Values");
-	Dialog.addNumber("Numerator channel "+Channel_Num+" background", 0);
-	Dialog.addNumber("Denominator channel "+Channel_Denom+" background", 0);
-	Dialog.show();
-	numBG = Dialog.getNumber();
-	denomBG = Dialog.getNumber();
-	print("Entered numerator channel "+Channel_Num+" background", numBG);
-	print("Entered denominator channel "+Channel_Denom+" background", denomBG);
+		print("No noise level was provided");
 	}
-else {
-	numBG = 0;
-	denomBG = 0;
-	print("No background was subtracted");
-	}
+} // end no interactive selection
 
-// subtract background
+// subtract the previously determined background
 
 selectWindow(numImage);
 run("Select None");
@@ -90,25 +130,6 @@ selectWindow(denomImage);
 run("Select None");
 run("Subtract...", "value="+denomBG+" stack");
 
-// set noise level if not interactively measured
-
-if (Noise_Method == "Fixed values") {
-	Dialog.create("Enter Fixed Noise Values");
-	Dialog.addNumber("Numerator channel "+Channel_Num+" noise", 1);
-	Dialog.addNumber("Denominator channel "+Channel_Denom+" noise", 1);
-	Dialog.show();
-	numNoise = Dialog.getNumber();
-	denomNoise = Dialog.getNumber();
-	print("Entered numerator channel "+Channel_Num+" background", numNoise);
-	print("Entered denominator channel "+Channel_Denom+" background", denomNoise);
-	}
-else if (Noise_Method == "None") {
-	
-	numNoise = 1;
-	denomNoise = 1;
-	print("No noise level was provided");
-	
-}
 // ---- Segmentation and ratioing ----
 
 // threshold on the sum of the 2 images
@@ -223,7 +244,7 @@ function measureBackground(Num, Denom, Trans) {
 	numBGs = Table.getColumn("Mean");
 	Array.getStatistics(numBGs, min, max, mean, stdDev);
 	numMeasBackground = round(mean);
-	numMeasNoise = round(stdDev)
+	numMeasNoise = round(stdDev);
 
 	// measure background in denominator channel
 	run("Clear Results");
@@ -233,9 +254,9 @@ function measureBackground(Num, Denom, Trans) {
 	denomBGs = Table.getColumn("Mean");
 	Array.getStatistics(denomBGs, min, max, mean, stdDev);
 	denomMeasBackground = round(mean);
-	denomMeasNoise = round(stdDev)
+	denomMeasNoise = round(stdDev);
 
 	results = newArray(numMeasBackground, numMeasNoise, denomMeasBackground, denomMeasNoise);
-	return backgrounds;
+	return results;
 	}
 // measureBackground function
