@@ -12,15 +12,19 @@
 // TO USE: Open a ratio image calculated by the biosensor macro. Run the script.
 // If intensity modulation is selected, the user will be prompted for the original data file
 
+// TODO maybe: Help mac user see what is needed -- title does not show up
 // TODO maybe: Stack compatibility (without max proj)
 // TODO maybe: Batch compatibility
 // TODO: Help text/readme for initial choices
 // TODO maybe: User selects calib bar options
 
+// ---- Setup ----
+roiManager("reset");
+
 // ---- Get image information ----
 id = getImageID();
 title = getTitle();
-dotIndex = indexOf(title, ".");
+dotIndex = indexOf(title, "."); // will throw error if no dot
 basename = substring(title, 0, dotIndex);
 getDimensions(width, height, channels, slices, frames);
 selectWindow(title);
@@ -42,11 +46,10 @@ else {
 
 if (Color_Method == "Intensity modulated") {
 	// create the HSB stack
-	intensity_mod("Ratio");
+	intensity_mod(minDisplay, maxDisplay);
 	
 	// set display contrast and LUT
-	selectWindow("Intensity_Modulated");
-	selectSlice(3); // should be value
+	selectWindow("Ratio");
 	setMinAndMax(minDisplay, maxDisplay);
 	if (Color_LUT == "Fire") {
 	run("Fire"); 
@@ -63,6 +66,7 @@ if (Color_Method == "Intensity modulated") {
 	run("Calibration Bar...", "location=[Upper Right] fill=Black label=White number=5 decimal=2 font=12 zoom=1 overlay");
 	// save the bar overlay in the ROI Mgr
 	run("To ROI Manager");
+	roiManager("Show All without labels");
 
 	// generate the RGB version without bar	
 	selectWindow("Intensity_Modulated");
@@ -71,7 +75,7 @@ if (Color_Method == "Intensity modulated") {
 	run("RGB Color");
 	
 	// generate the RGB verson with bar
-	selectWindow("Color")
+	selectWindow("Color");
 	run("Duplicate...", "title=Color with bar");
 	selectWindow("Color with bar");
 	run("From ROI Manager"); 
@@ -116,7 +120,7 @@ else if (Color_Method == "Equal brightess") {
 	run("RGB Color");
 	
 	// generate the RGB verson with bar
-	selectWindow("Color")
+	selectWindow("Color");
 	run("Duplicate...", "title=Color with bar");
 	selectWindow("Color with bar");
 	run("From ROI Manager"); 
@@ -139,7 +143,7 @@ else {
 //close();
 //selectWindow(IMName);
 //run("Hide Overlay");
-//roiManager("reset");
+roiManager("reset");
 //run("Tile");
 
 // close("*"); // image windows
@@ -147,7 +151,7 @@ else {
 // ---- Helper functions ---
 
 
-function intensity_mod(ratioImage) {
+function intensity_mod(min, max) {
 	// generate an intensity modulated ratio image based on the sum of the two raw image channels
 
 	// solicit a raw data image and relevant channels, return the sum of the fluorescent channels
@@ -185,37 +189,36 @@ function intensity_mod(ratioImage) {
 	
 	// calculate the average intensity
 	run("Split Channels");
-	firstChImage = "C"+firstCh+"_Raw";
-	secondChImage = "C"+secondCh+"_Raw";
+	firstChImage = "C"+firstCh+"-Raw";
+	secondChImage = "C"+secondCh+"-Raw";
 	imageCalculator("Add create 32-bit", firstChImage,secondChImage);
 	selectWindow("Result of "+firstChImage);
-	run("Divide", 2);
-	rename("Average.tif");
+	run("Divide...", "value=2");
+	rename("Average");
 
 	// ---- Make an intensity modulated image ----
 	
 	// create a new single-channel RGB image to hold the data
-	IMName = "Intensity_Modulated";
-	newImage(IMName, "RGB black", rawwidth, rawheight, 1, 1, 1);
+	newImage("Intensity_Modulated", "RGB black", rawwidth, rawheight, 1, 1, 1);
 	
 	// convert the RGB image to the HSB colorspace
-	selectWindow(IMName);
+	selectWindow("Intensity_Modulated");
 	run("HSB Stack");
 	
 	// hue will be the ratio value
 	selectWindow("Ratio");
 	run("Duplicate...", "title=copy_ratio");
+	run("Conversions...", "scale"); // ratios will be scaled to 0-255
 	selectWindow("copy_ratio");
-	run("Conversions...", "scale"); // make sure values are scaled properly when we convert
+	setMinAndMax(min, max);
 	run("Select All");
 	run("Copy");
-	selectWindow(IMName);
+	selectWindow("Intensity_Modulated");
 	setSlice(1); // hue
-	run("Select All");
 	run("Paste");
 	
 	// saturation should be all white (max value)
-	selectWindow(IMName);
+	selectWindow("Intensity_Modulated");
 	setSlice(2); // saturation
 	setForegroundColor(255, 255, 255); // white
 	run("Select All");
@@ -224,11 +227,11 @@ function intensity_mod(ratioImage) {
 	
 	// a popular choice for the value is the sum (or average) of the two channels. 
 	// Here we use the average.
-	selectWindow("Average.tif");
+	selectWindow("Average");
 	run("Select All");
 	run("Copy");
 	run("Select None");
-	selectWindow(IMName);
+	selectWindow("Intensity_Modulated");
 	setSlice(3); // value
 	run("Select All");
 	run("Paste");

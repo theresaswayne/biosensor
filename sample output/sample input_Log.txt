@@ -1,4 +1,5 @@
 Processing sample input.nd2
-Subtracting user-selected background
-Measured numerator channel 2 background 121
-Measured denominator channel 1 background 117
+Measuring user-selected area
+Measured numerator channel 2 background mean 117
+Measured denominator channel 1 background mean 118
+No noise level was provided
