@@ -76,8 +76,8 @@ if (Color_Method == "Intensity modulated") {
 	
 	// generate the RGB verson with bar
 	selectWindow("Color");
-	run("Duplicate...", "title=Color with bar");
-	selectWindow("Color with bar");
+	run("Duplicate...", "title=ColorWithBar");
+	selectWindow("ColorWithBar");
 	run("From ROI Manager"); 
 	run("Flatten");
 
@@ -89,7 +89,7 @@ if (Color_Method == "Intensity modulated") {
 	run("Hide Overlay");
 	saveAs("Tiff", outputDir  + File.separator + basename + "_IntensityModulated_RGB.tif");
 	
-	selectWindow("Color with bar");
+	selectWindow("ColorWithBar");
 	saveAs("Tiff", outputDir  + File.separator + basename + "_IntensityModulated_RGB_with_bar.tif");
 	
 }
@@ -121,8 +121,8 @@ else if (Color_Method == "Equal brightess") {
 	
 	// generate the RGB verson with bar
 	selectWindow("Color");
-	run("Duplicate...", "title=Color with bar");
-	selectWindow("Color with bar");
+	run("Duplicate...", "title=ColorWithBar");
+	selectWindow("ColorWithBar");
 	run("From ROI Manager"); 
 	run("Flatten");
 
@@ -130,7 +130,7 @@ else if (Color_Method == "Equal brightess") {
 	selectWindow("Color");
 	saveAs("Tiff", outputDir  + File.separator + basename + "_Color_RGB.tif");
 	
-	selectWindow("Color with bar");
+	selectWindow("ColorWithBar");
 	saveAs("Tiff", outputDir  + File.separator + basename + "_Color_with_bar.tif");
 
 }
