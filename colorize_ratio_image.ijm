@@ -1,5 +1,4 @@
 //@ String (label = "Colorization method",choices={"Intensity modulated", "Equal brightness"}, style="radioButtonHorizontal") Color_Method
-//@ String (label = "Color scheme",choices={"Fire", "RainbowRGB"}, style="radioButtonHorizontal") Color_LUT
 //@ Integer (label="Minimum display value", value=0) minDisplay
 //@ Integer (label="Maximum display value", value=20) maxDisplay
 //@ File(label = "Output folder:", style = "directory") outputDir
@@ -48,18 +47,11 @@ if (Color_Method == "Intensity modulated") {
 	// create the HSB stack
 	intensity_mod(minDisplay, maxDisplay);
 	
-	// set display contrast and LUT
+	// set display contrast and LUT on the ratio image
 	selectWindow("Ratio");
 	setMinAndMax(minDisplay, maxDisplay);
-	if (Color_LUT == "Fire") {
-	run("Fire"); 
-	}
-	else if (Color_Lut == "Rainbow RGB") {
-		run("Rainbow RGB");
-	}
-	else {
-		showMessage("I don't know what LUT to use");
-	}
+	//run("Rainbow RGB");
+	run("Spectrum"); // must be this to correspond to the hue value in the HSV image
 	
 	// create a color calibration bar 
 	// (change the parameters to suit your preference)
@@ -76,14 +68,15 @@ if (Color_Method == "Intensity modulated") {
 	
 	// generate the RGB verson with bar
 	selectWindow("Color");
-	run("Duplicate...", "title=ColorWithBar");
-	selectWindow("ColorWithBar");
-	run("From ROI Manager"); 
-	run("Flatten");
-
+	run("From ROI Manager");
+	roiManager("Show All without labels");
+	run("Flatten"); // generates a new window
+	selectWindow("Color-1");
+	rename("ColorWithBar");
+	
 	// save images
 	selectWindow("Intensity_Modulated");
-	saveAs("Tiff", outputDir  + File.separator + basename + "_IntensityModulated_HSB.tif");
+	saveAs("Tiff", outputDir  + File.separator + basename + "_IntensityModulated_HSV.tif");
 
 	selectWindow("Color");
 	run("Hide Overlay");
@@ -93,18 +86,17 @@ if (Color_Method == "Intensity modulated") {
 	saveAs("Tiff", outputDir  + File.separator + basename + "_IntensityModulated_RGB_with_bar.tif");
 	
 }
-else if (Color_Method == "Equal brightess") {
+else if (Color_Method == "Equal brightness") {
 	selectWindow("Ratio");
 	setMinAndMax(minDisplay, maxDisplay);
-	if (Color_LUT == "Fire") {
-	run("Fire"); 
-	}
-	else if (Color_Lut == "Rainbow RGB") {
-		run("Rainbow RGB");
-	}
-	else {
-		showMessage("I don't know what LUT to use");
-	}
+	
+	Dialog.create("Select color scheme");
+	Dialog.addChoice("Display LUT:", newArray("Fire", "Rainbow RGB"));
+	Dialog.show();
+	
+	Color_LUT  = Dialog.getChoice();
+	
+	run(Color_LUT); 
 	
 	// create a color calibration bar 
 	// (change the parameters to suit your preference)
@@ -121,10 +113,11 @@ else if (Color_Method == "Equal brightess") {
 	
 	// generate the RGB verson with bar
 	selectWindow("Color");
-	run("Duplicate...", "title=ColorWithBar");
-	selectWindow("ColorWithBar");
 	run("From ROI Manager"); 
-	run("Flatten");
+	roiManager("Show All without labels");
+	run("Flatten"); // generates a new window
+	selectWindow("Color-1");
+	rename("ColorWithBar");
 
 	// save images
 	selectWindow("Color");
@@ -139,17 +132,10 @@ else {
 }
 
 // ---- Clean up and display all of the windows ----
-//selectWindow("copy_ratio"); 
-//close();
-//selectWindow(IMName);
-//run("Hide Overlay");
 roiManager("reset");
-//run("Tile");
+close("*"); // all image windows
 
-// close("*"); // image windows
-
-// ---- Helper functions ---
-
+// ---- Helper function ---
 
 function intensity_mod(min, max) {
 	// generate an intensity modulated ratio image based on the sum of the two raw image channels
@@ -157,6 +143,7 @@ function intensity_mod(min, max) {
 	// solicit a raw data image and relevant channels, return the sum of the fluorescent channels
 	
 	// get the raw data image
+	showMessage("On the next dialog please open the raw data file");
 	rawPath = File.openDialog("Select the raw data file corresponding to the ratio image");
   	open(rawPath); // open the file
   	
