@@ -3,6 +3,7 @@
 //@ int(label="Channel for transmitted light -- select 0 if none", style = "spinner") Channel_Trans
 //@ string(label="Background subtraction method", choices={"None", "Fixed values", "Measured from image area"}, style="listBox") Background_Method
 //@ string(label="Noise subtraction method", choices={"None", "Fixed values", "Measured from image area"}, style="listBox") Noise_Method
+//@ boolean(label = "Project Z before analyzing?") Z_Proj
 //@ File(label = "Output folder:", style = "directory") outputDir
 
 // biosensor.ijm
@@ -39,6 +40,24 @@ getDimensions(width, height, channels, slices, frames);
 print("Processing",title);
 
 // ---- Prepare images ----
+
+// are we working with the stack or a single image?
+if (slices > 1 && Z_Proj == "false") {
+	imageType = "stack";
+}
+else {
+	imageType = "";
+}
+
+// create Z projection if desired
+if (Z_Proj == "true") {
+	run("Z Project...", "projection=[Max Intensity]");
+	selectWindow(title);
+	close();
+	selectWindow("MAX_"+title);
+	rename(title);
+}
+
 run("Split Channels");
 numImage = "C"+Channel_Num+"-"+title;
 denomImage = "C"+Channel_Denom+"-"+title;
@@ -110,25 +129,25 @@ else if (Noise_Method == "None") {
 
 selectWindow(numImage);
 run("Select None");
-run("Subtract...", "value="+numBG+" stack");
+run("Subtract...", "value="+numBG+" "+imageType);
 
 selectWindow(denomImage);
 run("Select None");
-run("Subtract...", "value="+denomBG+" stack");
+run("Subtract...", "value="+denomBG+" "+imageType);
 
 // ---- Segmentation and ratioing ----
 
 // threshold on the sum of the 2 images
-imageCalculator("Add create 32-bit stack", numImage,denomImage);
+imageCalculator("Add create 32-bit &imageType", numImage,denomImage);
 selectWindow("Result of "+numImage);
 rename("Sum");
-setAutoThreshold("MaxEntropy dark stack"); // change the threshold method if needed
+setAutoThreshold("MaxEntropy dark &imageType"); // change the threshold method if needed
 //setOption("BlackBackground", false);
 run("Convert to Mask", "method=MaxEntropy background=Dark black"); // change the threshold method if needed
 
 // divide the 8-bit mask by 255 to generate a 0,1 mask
 selectWindow("Sum");
-run("Divide...", "value=255 stack");
+run("Divide...", "value=255 &imageType");
 rename("Mask");
 
 // apply the mask to each channel by multiplication
@@ -140,25 +159,19 @@ selectWindow("Result of "+numImage);
 rename("Masked Num");
 selectWindow("Masked Num");
 setThreshold(numNoise, 1000000000000000000000000000000.0000); // this should ensure all mask pixels are selected 
-run("NaN Background", "stack");
+run("NaN Background", imageType);
 
 imageCalculator("Multiply create 32-bit stack", denomImage, "Mask");
 selectWindow("Result of "+denomImage);
 rename("Masked Denom");
 selectWindow("Masked Denom");
 setThreshold(denomNoise, 1000000000000000000000000000000.0000); // this should ensure all mask pixels are selected 
-run("NaN Background", "stack");
+run("NaN Background", imageType);
 
 // calculate the ratio image
-imageCalculator("Divide create 32-bit stack", "Masked Num","Masked Denom");
+imageCalculator("Divide create 32-bit &imageType", "Masked Num","Masked Denom");
 selectWindow("Result of Masked Num");
 rename("Ratio");
-
-// TODO -- delete?
-// set background pixels to NaN
-//selectWindow("Ratio");
-//setThreshold(1.0000, 1000000000000000000000000000000.0000); // this should ensure all mask pixels are selected 
-//run("NaN Background", "stack");
 
 // ---- Select cells and measure ----
 
@@ -171,10 +184,11 @@ else {
 	selectWindow(Sum);
 	}
 setTool("freehand");
-middleSlice = round(slices/2);
-Stack.setPosition(1,middleSlice,1);
-waitForUser("Mark cells", "Draw ROIs and add to the ROI manager (press T after each).\nThen click OK");
-
+if (imageType == "stack") {
+	middleSlice = round(slices/2);
+	Stack.setPosition(1,middleSlice,1);
+}
+waitForUser("Mark cells", "Draw ROIs and add to the ROI manager (press T after each).\nOr, open an ROI set.\nThen click OK");
 
 selectWindow("Ratio");
 rename(basename + "_ratio"); // so the results will have the original filename attached
@@ -227,7 +241,12 @@ function measureBackground(Num, Denom, Trans) {
 	// measure background in numerator channel
 	selectWindow(numImage);
 	run("Restore Selection"); // TODO: save this in the ROI manager
-	run("Measure Stack...");
+	if (imageType == "stack") {
+		run("Measure Stack...");
+	}
+	else {
+		run("Measure");
+	}
 	numBGs = Table.getColumn("Mean");
 	numSDs = Table.getColumn("StdDev");
 	Array.getStatistics(numBGs, min, max, mean, stdDev);
@@ -239,7 +258,12 @@ function measureBackground(Num, Denom, Trans) {
 	run("Clear Results");
 	selectWindow(denomImage);
 	run("Restore Selection"); // TODO: save this in the ROI manager
-	run("Measure Stack...");
+	if (imageType == "stack") {
+		run("Measure Stack...");
+	}
+	else {
+		run("Measure");
+	}
 	denomBGs = Table.getColumn("Mean");
 	denomSDs = Table.getColumn("StdDev");
 	Array.getStatistics(denomBGs, min, max, mean, stdDev);
