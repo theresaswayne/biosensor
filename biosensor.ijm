@@ -175,6 +175,23 @@ middleSlice = round(slices/2);
 Stack.setPosition(1,middleSlice,1);
 waitForUser("Mark cells", "Draw ROIs and add to the ROI manager (press T after each).\nThen click OK");
 
+//  save individual channel results
+
+selectWindow("Masked Num");
+roiManager("deselect");
+roiManager("Multi Measure");
+selectWindow("Results");
+saveAs("Results", outputDir  + File.separator + basename + "_Num Results.csv");
+run("Clear Results");
+
+selectWindow("Masked Denom");
+roiManager("deselect");
+roiManager("Multi Measure");
+selectWindow("Results");
+saveAs("Results", outputDir  + File.separator + basename + "_Denom Results.csv");
+run("Clear Results");
+
+// save ratio image results
 
 selectWindow("Ratio");
 rename(basename + "_ratio"); // so the results will have the original filename attached
