@@ -1,24 +1,27 @@
 //@ int(label="Channel for numerator", style = "spinner") Channel_Num
 //@ int(label="Channel for denominator", style = "spinner") Channel_Denom
 //@ int(label="Channel for transmitted light -- select 0 if none", style = "spinner") Channel_Trans
-//@ string(label="Background subtraction method", choices={"None", "Fixed values", "Measured from image area"}, style="listBox") Background_Method
-//@ string(label="Noise subtraction method", choices={"None", "Fixed values", "Measured from image area"}, style="listBox") Noise_Method
+//@ string(label="Background subtraction method", choices={"Select an image area","Fixed values","None"}, style="listBox") Background_Method
+//@ string(label="Noise subtraction method", choices={"Select an image area", "Fixed values", "None"}, style="listBox") Noise_Method
 //@ File(label = "Output folder:", style = "directory") outputDir
 
 // biosensor.ijm
-// ImageJ macro to generate a ratio image from a multichannel Z stack with interactive background selection
-// Input: multi-channel Z stack image
-// Output: mask and ratio images, results, ROI set, log of background and noise levels
+// ImageJ macro to generate a ratio image from a multichannel Z stack with background and noise determination
+// Input: multi-channel Z stack image, and optional reference image for background subtraction
+// Outputs: 
+//	mask and ratio images
+//	measurements from numerator, denominator, and pixelwise ratio
+//	ROI set, log of background and noise levels
 // Theresa Swayne, Columbia University, 2022-2023
 
 // TO USE: Open a multi-channel Z stack image. Run the macro. 
+
+// TODO: Condense choices so background and noise are handled the same way (otherwise we have 16 options)
 
 // TODO: Error handling
 // -- no image open 
 // -- user clicks OK with no background or ROIS selected
 // -- if no ROI -- measure whole image -- write to log
-
-// TODO: prompt user to open ROIs if desired, instead of drawing background and cells 
 
 // TODO MAYBE: 
 //	user sets threshold type
@@ -49,15 +52,15 @@ if (Channel_Trans != 0) {
 // ---- Background and noise handling ---
 // Background values are subtracted from each channel before initial segmentation
 // Noise values are used to threshold each channel after segmentation, before ratioing
-// Noise is estimated as the standard deviation of the background
+// Noise, if measured, is estimated as the standard deviation of the background
 
 
-if (Background_Method == "Measured from image area" || Noise_Method == "Measured from image area") { // interactive selection
+if (Background_Method == "Select an image area" || Noise_Method == "Select an image area") { // interactive selection
 	print("Measuring user-selected area");
 	measBG = measureBackground(Channel_Num, Channel_Denom, Channel_Trans); // array containing preliminary values for background and noise
 }
 	
-if (Background_Method == "Measured from image area") { // measured bg 
+if (Background_Method == "Select an image area") { // measured bg 
 	numBG = measBG[0];
 	denomBG = measBG[2];
 	print("Measured numerator channel "+Channel_Num+" background mean", numBG);
@@ -81,14 +84,13 @@ else if (Background_Method == "None") {
 		print("No background was subtracted");
 }
 
-if (Noise_Method == "Measured from image area") { // use measured noise
+if (Noise_Method == "Select an image area") { // use measured noise
 	numNoise = measBG[1];
 	denomNoise = measBG[3];
 	print("Measured numerator channel "+Channel_Num+" background StdDev",numNoise);
 	print("Measured denominator channel "+Channel_Denom+" background StdDev",denomNoise);
 }
 	
-
 else if (Noise_Method == "Fixed values") {
 		Dialog.create("Enter Fixed Noise Values");
 		Dialog.addNumber("Numerator channel "+Channel_Num+" noise", 1);
@@ -154,12 +156,6 @@ imageCalculator("Divide create 32-bit stack", "Masked Num","Masked Denom");
 selectWindow("Result of Masked Num");
 rename("Ratio");
 
-// TODO -- delete?
-// set background pixels to NaN
-//selectWindow("Ratio");
-//setThreshold(1.0000, 1000000000000000000000000000000.0000); // this should ensure all mask pixels are selected 
-//run("NaN Background", "stack");
-
 // ---- Select cells and measure ----
 
 run("Set Measurements...", "area mean integrated display redirect=None decimal=2");
@@ -174,6 +170,16 @@ setTool("freehand");
 middleSlice = round(slices/2);
 Stack.setPosition(1,middleSlice,1);
 waitForUser("Mark cells", "Draw ROIs and add to the ROI manager (press T after each).\nThen click OK");
+
+// rename ROIs for easier interpretation of results table
+
+n = roiManager("count");
+for (i = 0; i < n; i++) {
+    roiManager("Select", i);
+    newName = "ROI_"+i+1;
+    roiManager("Rename", newName);
+}
+roiManager("deselect");  
 
 //  save individual channel results
 
@@ -221,7 +227,7 @@ run("Close");
 roiManager("reset");
 run("Clear Results");
 
-// ---- Helper function ----
+// ---- Helper functions ----
 
 function measureBackground(Num, Denom, Trans) { 
 	// Measures background from a user-specified ROI
@@ -264,7 +270,9 @@ function measureBackground(Num, Denom, Trans) {
 	Array.getStatistics(denomSDs, min, max, mean, stdDev);
 	denomMeasNoise = round(mean);
 
-	results = newArray(numMeasBackground, numMeasNoise, denomMeasBackground, denomMeasNoise);
-	return results;
-	}
+	measBGResults = newArray(numMeasBackground, numMeasNoise, denomMeasBackground, denomMeasNoise);
+	return measBGResults;
+}
 // measureBackground function
+
+
