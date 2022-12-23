@@ -1,20 +1,22 @@
 //@ int(label="Channel for numerator", style = "spinner") Channel_Num
 //@ int(label="Channel for denominator", style = "spinner") Channel_Denom
 //@ int(label="Channel for transmitted light -- select 0 if none", style = "spinner") Channel_Trans
-//@ string(label="Background subtraction method", choices={"Reference image",  "Select an image area","Fixed values","None"}, style="listBox") Background_Method
-//@ string(label="Noise subtraction method", choices={"Reference image", "Select an image area", "Fixed values", "None"}, style="listBox") Noise_Method
+//@ string(label="Background subtraction method", choices={"Select an image area","Fixed values","None"}, style="listBox") Background_Method
+//@ string(label="Noise subtraction method", choices={"Select an image area", "Fixed values", "None"}, style="listBox") Noise_Method
 //@ File(label = "Output folder:", style = "directory") outputDir
 
 // biosensor.ijm
 // ImageJ macro to generate a ratio image from a multichannel Z stack with background and noise determination
 // Input: multi-channel Z stack image, and optional reference image for background subtraction
-// Output: mask and ratio images, results, ROI set, log of background and noise levels
+// Outputs: 
+//	mask and ratio images
+//	measurements from numerator, denominator, and pixelwise ratio
+//	ROI set, log of background and noise levels
 // Theresa Swayne, Columbia University, 2022-2023
 
 // TO USE: Open a multi-channel Z stack image. Run the macro. 
 
 // TODO: Condense choices so background and noise are handled the same way (otherwise we have 16 options)
-// TODO: Save subtracted image for reerence and intensity modulation
 
 // TODO: Error handling
 // -- no image open 
@@ -50,17 +52,8 @@ if (Channel_Trans != 0) {
 // ---- Background and noise handling ---
 // Background values are subtracted from each channel before initial segmentation
 // Noise values are used to threshold each channel after segmentation, before ratioing
-// Noise is estimated as the standard deviation of the background
+// Noise, if measured, is estimated as the standard deviation of the background
 
-if (Background_Method == "Reference image" || Noise_Method == "Reference image") {
-	numBG = 0;
-	denomBG = 0;
-	imgSubResults = subtractImage(Channel_Num, Channel_Denom, Channel_Trans);
-	numNoise = imgSubResults[0];
-	denomNoise = imgSubResults[1];
-	print("Reference numerator channel "+Channel_Num+" background StdDev",numNoise);
-	print("Reference denominator channel "+Channel_Denom+" background StdDev",denomNoise);
-}
 
 if (Background_Method == "Select an image area" || Noise_Method == "Select an image area") { // interactive selection
 	print("Measuring user-selected area");
@@ -98,7 +91,6 @@ if (Noise_Method == "Select an image area") { // use measured noise
 	print("Measured denominator channel "+Channel_Denom+" background StdDev",denomNoise);
 }
 	
-
 else if (Noise_Method == "Fixed values") {
 		Dialog.create("Enter Fixed Noise Values");
 		Dialog.addNumber("Numerator channel "+Channel_Num+" noise", 1);
@@ -178,6 +170,16 @@ setTool("freehand");
 middleSlice = round(slices/2);
 Stack.setPosition(1,middleSlice,1);
 waitForUser("Mark cells", "Draw ROIs and add to the ROI manager (press T after each).\nThen click OK");
+
+// rename ROIs for easier interpretation of results table
+
+n = roiManager("count");
+for (i = 0; i < n; i++) {
+    roiManager("Select", i);
+    newName = "ROI_"+i+1;
+    roiManager("Rename", newName);
+}
+roiManager("deselect");  
 
 //  save individual channel results
 
@@ -273,96 +275,4 @@ function measureBackground(Num, Denom, Trans) {
 }
 // measureBackground function
 
-function subtractImage(Num, Denom, Trans) {
-
-// Takes an input image and a user-supplied multichannel reference image. 
-// Calculates the noise in the reference image as the standard deviation of the pixel values (by channel).
-// Subtracts the average of the reference stack from the input stack (by channel).
-// Returns the corrected channels and the SD values
-	
-	// get the reference image
-	showMessage("On the next dialog please open the reference image file");
-	refPath = File.openDialog("Select the reference image file");
-  	open(refPath); // open the file
-  	
-  	//dir = File.getParent(rawPath);
-	refName = File.getName(refPath);
-	refDotIndex = indexOf(refName, ".");
-	refBasename = substring(refName, 0, refDotIndex);
-	
-	// write info to the log
-	print("Subtracting reference image",refName);
-	
-	selectWindow(refName);
-	getDimensions(refwidth, refheight, refchannels, refslices, refframes);
-	run("Split Channels");
-	numRef = "C"+Num+"-"+refName;
-	denomRef = "C"+Denom+"-"+refName;
-	if (Trans != 0) {
-		transRef = "C"+Channel_Trans+"-"+refName;
-	}
-
-	// measure the standard deviation of each fluorescence channel in the stack
-	run("Set Measurements...", "mean standard redirect=None decimal=2");
-
-	// measure SD in reference image numerator channel
-	selectWindow(numRef);
-	run("Select All");
-	run("Measure Stack..."); 
-	numRefSDs = Table.getColumn("StdDev"); // each row is one slice of the stack
-	Array.getStatistics(numRefSDs, min, max, mean, stdDev);
-	numRefNoise = round(mean); // average of all the slice standard deviations  
-
-	// measure SD in reference image denominator channel
-	run("Clear Results");
-	selectWindow(denomRef);
-	run("Select All");
-	run("Measure Stack...");
-	denomRefSDs = Table.getColumn("StdDev");
-	Array.getStatistics(denomRefSDs, min, max, mean, stdDev);
-	denomRefNoise = round(mean);
-	
-	// make an average intensity projection, or use the original image if just one slice
-	if (refslices > 1) {
-		selectWindow(numRef);
-		run("Z Project...", "projection=[Average Intensity]");
-		selectWindow("AVG_"+numRef);
-		rename("Num_Reference");
-		
-		selectWindow(denomRef);
-		run("Z Project...", "projection=[Average Intensity]");
-		selectWindow("AVG_"+denomRef);
-		rename("Denom_Reference");
-	}
-	else {
-		selectWindow(numRef);
-		rename("Num_Reference");
-		selectWindow(denomRef);
-		rename("Denom_Reference");
-	}
-	
-	// subtract the averaged reference from the input image and restore the image name
-	imageCalculator("Subtract create 32-bit stack", numImage,"Num_Reference");
-	selectWindow(numImage);
-	close();
-	selectWindow("Result of "+numImage);
-	rename(numImage);
-	
-	imageCalculator("Subtract create 32-bit stack", denomImage,"Denom_Reference");
-	selectWindow(denomImage);
-	close();
-	selectWindow("Result of "+denomImage);
-	rename(denomImage);
-	
-	// clean up
-	selectWindow("Num_Reference");
-	close();
-	selectWindow("Denom_Reference");
-	close();
-	run("Clear Results");
-	
-	imgSubResults = newArray(numRefNoise, denomRefNoise);
-	return imgSubResults;
-}
-// subtractImage function
 

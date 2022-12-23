@@ -7,7 +7,11 @@
 // biosensor.ijm
 // ImageJ macro to generate a ratio image from a multichannel Z stack with background and noise determination
 // Input: multi-channel Z stack image, and optional reference image for background subtraction
-// Output: mask and ratio images, results, ROI set, log of background and noise levels
+// Outputs: 
+//	mask and ratio images
+//	measurements from numerator, denominator, and pixelwise ratio
+//	ROI set, log of background and noise levels
+//	subtracted images (if applicable)
 // Theresa Swayne, Columbia University, 2022-2023
 
 // TO USE: Open a multi-channel Z stack image. Run the macro.
@@ -46,7 +50,7 @@ if (Channel_Trans != 0) {
 // ---- Background and noise handling ---
 // Background values are subtracted from each channel before initial segmentation
 // Noise values are used to threshold each channel after segmentation, before ratioing
-// Noise is estimated as the standard deviation of the background
+// Noise, if measured, is estimated as the standard deviation of the background
 
 if (Background_Method == "Reference image") {
 	numBG = 0;
