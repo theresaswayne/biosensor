@@ -14,6 +14,7 @@
 // TO USE: Open a multi-channel Z stack image. Run the macro. 
 
 // TODO: Condense choices so background and noise are handled the same way (otherwise we have 16 options)
+// TODO: Save subtracted image for reerence and intensity modulation
 
 // TODO: Error handling
 // -- no image open 
@@ -54,7 +55,7 @@ if (Channel_Trans != 0) {
 if (Background_Method == "Reference image" || Noise_Method == "Reference image") {
 	numBG = 0;
 	denomBG = 0;
-	subtractImage(Channel_Num, Channel_Denom, Trans);
+	imgSubResults = subtractImage(Channel_Num, Channel_Denom, Channel_Trans);
 	numNoise = imgSubResults[0];
 	denomNoise = imgSubResults[1];
 	print("Reference numerator channel "+Channel_Num+" background StdDev",numNoise);
@@ -323,33 +324,45 @@ function subtractImage(Num, Denom, Trans) {
 	
 	// make an average intensity projection, or use the original image if just one slice
 	if (refslices > 1) {
+		selectWindow(numRef);
 		run("Z Project...", "projection=[Average Intensity]");
-		selectWindow("MAX_"+refName);
-		rename("Reference");
+		selectWindow("AVG_"+numRef);
+		rename("Num_Reference");
+		
+		selectWindow(denomRef);
+		run("Z Project...", "projection=[Average Intensity]");
+		selectWindow("AVG_"+denomRef);
+		rename("Denom_Reference");
 	}
 	else {
-		selectWindow(rawName);
-		rename("Reference");
+		selectWindow(numRef);
+		rename("Num_Reference");
+		selectWindow(denomRef);
+		rename("Denom_Reference");
 	}
 	
 	// subtract the averaged reference from the input image and restore the image name
-	imageCalculator("Subtract create 32-bit", numImage,"Reference");
+	imageCalculator("Subtract create 32-bit stack", numImage,"Num_Reference");
 	selectWindow(numImage);
 	close();
 	selectWindow("Result of "+numImage);
 	rename(numImage);
 	
-	imageCalculator("Subtract create 32-bit", denomImage,"Reference");
+	imageCalculator("Subtract create 32-bit stack", denomImage,"Denom_Reference");
 	selectWindow(denomImage);
 	close();
 	selectWindow("Result of "+denomImage);
 	rename(denomImage);
 	
-	selectWindow("Reference");
+	// clean up
+	selectWindow("Num_Reference");
 	close();
+	selectWindow("Denom_Reference");
+	close();
+	run("Clear Results");
 	
 	imgSubResults = newArray(numRefNoise, denomRefNoise);
-	return(imgSubResults);
+	return imgSubResults;
 }
 // subtractImage function
 
