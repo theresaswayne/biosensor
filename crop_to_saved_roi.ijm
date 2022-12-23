@@ -1,8 +1,7 @@
 // @File(label = "Input folder", style = "directory") input
 // @File(label = "Output folder", style = "directory") output
-// @File(label="ROI", description="Select the ROI file") roifile
+// @File(label="Saved ROI", description="Select the ROI file") roifile
 // @String(label = "Input file suffix", value = ".nd2") suffix
-
 
 // setup
 roiManager("reset");
