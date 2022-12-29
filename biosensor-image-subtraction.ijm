@@ -4,7 +4,7 @@
 //@ string(label="Background and noise subtraction method", choices={"Reference image",  "Select an image area","Fixed values","None"}, style="listBox") Background_Method
 //@ File(label = "Output folder:", style = "directory") outputDir
 
-// biosensor.ijm
+// biosensor-image-subtraction.ijm
 // ImageJ macro to generate a ratio image from a multichannel Z stack with background and noise determination
 // Input: multi-channel Z stack image, and optional reference image for background subtraction
 // Outputs: 
