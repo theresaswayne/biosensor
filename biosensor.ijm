@@ -7,7 +7,7 @@
 
 // biosensor.ijm
 // ImageJ macro to generate a ratio image from a multichannel Z stack with background and noise determination
-// Input: multi-channel Z stack image, and optional reference image for background subtraction
+// Input: multi-channel Z stack image
 // Outputs: 
 //	mask and ratio images
 //	measurements from numerator, denominator, and pixelwise ratio
@@ -184,24 +184,25 @@ roiManager("deselect");
 //  save individual channel results
 
 selectWindow("Masked Num");
+rename(basename + "_C"+Channel_Num+"_Num"); // so the results will have the original filename attached
 roiManager("deselect");
 roiManager("Multi Measure");
 selectWindow("Results");
-saveAs("Results", outputDir  + File.separator + basename + "_Num Results.csv");
+saveAs("Results", outputDir  + File.separator + basename + "_NumResults.csv");
 run("Clear Results");
 
 selectWindow("Masked Denom");
+rename(basename +  "_C"+Channel_Denom+"_Denom"); // so the results will have the original filename attached
 roiManager("deselect");
 roiManager("Multi Measure");
 selectWindow("Results");
-saveAs("Results", outputDir  + File.separator + basename + "_Denom Results.csv");
+saveAs("Results", outputDir  + File.separator + basename + "_DenomResults.csv");
 run("Clear Results");
 
 // save ratio image results
 
 selectWindow("Ratio");
 rename(basename + "_ratio"); // so the results will have the original filename attached
-
 roiManager("deselect");
 roiManager("Multi Measure"); // user sees dialog to choose rows/columns for output
 

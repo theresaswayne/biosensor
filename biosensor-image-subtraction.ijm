@@ -183,18 +183,21 @@ roiManager("deselect");
 //  save individual channel results
 
 selectWindow("Masked Num");
+rename(basename + "_C"+Channel_Num+"_Num"); // so the results will have the original filename attached
 roiManager("deselect");
 roiManager("Multi Measure");
 selectWindow("Results");
-saveAs("Results", outputDir  + File.separator + basename + "_Num Results.csv");
+saveAs("Results", outputDir  + File.separator + basename + "_NumResults.csv");
 run("Clear Results");
 
 selectWindow("Masked Denom");
+rename(basename +  "_C"+Channel_Denom+"_Denom"); // so the results will have the original filename attached
 roiManager("deselect");
 roiManager("Multi Measure");
 selectWindow("Results");
-saveAs("Results", outputDir  + File.separator + basename + "_Denom Results.csv");
+saveAs("Results", outputDir  + File.separator + basename + "_DenomResults.csv");
 run("Clear Results");
+
 
 // save ratio image results
 
