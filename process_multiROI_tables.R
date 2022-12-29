@@ -61,8 +61,15 @@ Roi <- seq(1:numROIs)
 meas_areas <- meas_sums %>% 
   select(contains("Area"))
 Area_cols <- colnames(meas_areas)
-Area_rois <- str_replace(Area_cols, "Area([0-9]{1,2})_sum", "\\1") %>%
+
+# get ROI names -- for new style ROI names (Area(ROI_1)_sum)
+Area_rois <- str_replace(Area_cols, "Area\\(ROI_([0-9]{1,2})\\)_sum", "\\1") %>%
   as.numeric()
+
+# get ROI names -- for old style ROI names (IJ default, Area1_sum)
+# Area_rois <- str_replace(Area_cols, "Area([0-9]{1,2})_sum", "\\1") %>%
+#   as.numeric()
+
 # values are in the 1st row, all columns
 Area_vals <- meas_areas[1,] %>% as.numeric()
 Area_table <- bind_cols(ROI = Area_rois, Area = Area_vals)
@@ -71,8 +78,13 @@ Area_table <- bind_cols(ROI = Area_rois, Area = Area_vals)
 meas_intdens <- meas_sums %>% 
   select(contains("IntDen") & !contains("Raw"))
 IntDen_cols <- colnames(meas_intdens)
-IntDen_rois <- str_replace(IntDen_cols, "IntDen([0-9]{1,2})_sum", "\\1") %>%
+
+# get ROI names -- for new style ROI names (IntDen(ROI_1)_sum)
+IntDen_rois <- str_replace(IntDen_cols, "IntDen\\(ROI_([0-9]{1,2})\\)_sum", "\\1") %>%
   as.numeric()
+
+# IntDen_rois <- str_replace(IntDen_cols, "IntDen([0-9]{1,2})_sum", "\\1") %>%
+#   as.numeric()
 IntDen_vals <- meas_intdens[1,] %>% as.numeric()
 IntDen_table <- bind_cols(ROI = IntDen_rois, IntDen = IntDen_vals)
 
@@ -89,13 +101,11 @@ meas_tidy <- meas_tidy %>%
 # Then save the new table
 # User selects the output directory
 
-# ---- User chooses the input folder ----
+# ---- User chooses the output folder ----
 outputDir <- tk_choose.dir(default = "", caption = "Please OPEN the output folder") # prompt user
 nameLength <- nchar(basename(datafile)) - 4
 outputFile = paste(substring(basename(datafile),1,nameLength),"tidied.csv")
 write_csv(meas_tidy,file.path(outputDir, outputFile))
-
-# TODO: Adapt the same idea to take 2 input files (Num and Denom) and calculate appropriately
 
 
 
