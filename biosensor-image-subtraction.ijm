@@ -352,14 +352,14 @@ function subtractImage(Num, Denom, Trans) {
 	selectWindow(numImage);
 	close();
 	selectWindow("Result of "+numImage);
-	saveAs("Tiff", outputDir  + File.separator + numImage + "_sub.tif");
+	saveAs("Tiff", outputDir  + File.separator + numImage + "_Num_sub.tif");
 	rename(numImage);
 	
 	imageCalculator("Subtract create 32-bit stack", denomImage,"Denom_Reference");
 	selectWindow(denomImage);
 	close();
 	selectWindow("Result of "+denomImage);
-	saveAs("Tiff", outputDir  + File.separator + denomImage + "_sub.tif");
+	saveAs("Tiff", outputDir  + File.separator + denomImage + "_Denom_sub.tif");
 	rename(denomImage);
 	
 	// clean up
