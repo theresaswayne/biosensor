@@ -1,6 +1,7 @@
-//@ String (label = "Colorization method",choices={"Intensity modulated", "Equal brightness"}, style="radioButtonHorizontal") Color_Method
-//@ Integer (label="Minimum display value", value=0) minDisplay
-//@ Integer (label="Maximum display value", value=20) maxDisplay
+//@ String (label = "Colorization method:",choices={"Intensity modulated", "Equal brightness"}, style="radioButtonHorizontal") Color_Method
+//@ Double (label="Minimum displayed value:", value=0.00, persist=true, style="format:#.##") minDisplay
+//@ Double (label="Maximum displayed value:", value=1.00, persist=true, style="format:#.##") maxDisplay
+//@ String (label = "Projection mode for Z stacks:", choices={"Max", "Average"}, style="radioButtonHorizontal") Proj_Method
 //@ File(label = "Output folder:", style = "directory") outputDir
 
 // ImageJ/Fiji macro to calculate a ratio image from a multichannel image with interactive background selection
@@ -11,11 +12,8 @@
 // TO USE: Open a ratio image calculated by the biosensor macro. Run the script.
 // If intensity modulation is selected, the user will be prompted for the original data file
 
-// TODO maybe: Help mac user see what is needed -- title does not show up
-// TODO maybe: Stack compatibility (without max proj)
 // TODO maybe: Batch compatibility
 // TODO: Help text/readme for initial choices
-// TODO maybe: User selects calib bar options
 
 // ---- Setup ----
 roiManager("reset");
@@ -30,9 +28,17 @@ selectWindow(title);
 
 // Make projection if needed and rename the input ratio image to Ratio
 if (slices > 1) {
-	run("Z Project...", "projection=[Max Intensity]");
-	selectWindow("MAX_"+title);
-	rename("Ratio");
+	if (Proj_Method == "Max") {
+		run("Z Project...", "projection=[Max Intensity]");
+		selectWindow("MAX_"+title);
+		rename("Ratio");
+	}
+	
+	if (Proj_Method == "Average") {
+		run("Z Project...", "projection=[Average Intensity]");
+		selectWindow("AVG_"+title);
+		rename("Ratio");
+	}
 	selectWindow(title);
 	close();
 }
