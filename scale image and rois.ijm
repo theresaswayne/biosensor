@@ -7,11 +7,8 @@
 // opens each of a folder of images and a corresponding set of ROIs.
 // bins 2x2 and scales down ROIs, and saves results.
 
-// TODO: Fix stack being saved as a single slice
-// TODO: Fix extra ROIs
-
 // note -- do  not nest the image, ROI, or output folders.
-// note -- if an roi is missing the macro will quit
+// note -- if an roi file is missing, the macro will quit
 // TODO: skip file and alert user if the roi is not found
 
 // setup
@@ -59,10 +56,10 @@ function processFile(input, roi, output, file) {
 	// sum adjacent pixels
 	selectWindow(title);
 	binname = basename + "_bin";
-	run("Duplicate...", "title=&binname");
+	run("Duplicate...", "title=&binname duplicate");
 	selectWindow(binname);
 	run("32-bit");
-	run("Bin...", "x=2 y=2 bin=Sum");
+	run("Bin...", "x=2 y=2 z=1 bin=Sum");
 	
 	// select all ROIs and scale them
 	numROIs = roiManager("count");
@@ -71,6 +68,7 @@ function processFile(input, roi, output, file) {
 	
 	// save image and ROIs
 	selectWindow(binname);
+	run("Remove Overlay");
 	saveAs("Tiff",  output + File.separator + binname + ".tif");
 	roiManager("deselect");
 	roiManager("save", output  + File.separator + basename + "_scaledROIs.zip");
