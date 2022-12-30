@@ -5,12 +5,16 @@
 
 // setup
 roiManager("reset");
+run("Bio-Formats Macro Extensions"); // required to open ND2 files
 
 // open ROI
 roiManager("Open", roifile);
 
+setBatchMode("true");
 // process images
 processFolder(input);
+
+setBatchMode("false");
 
 function processFolder(input) {
 // scan folders/subfolders/files to find files with correct suffix
@@ -18,17 +22,22 @@ function processFolder(input) {
 	list = getFileList(input);
 	list = Array.sort(list);
 	for (i=0; i < list.length; i++) {
-		if(File.isDirectory(input + list[i]))
-			processFolder("" + input + list[i]);
-		if(endsWith(list[i], suffix))
+		if (File.isDirectory(input + File.separator + list[i])) {
+			processFolder(input + File.separator +  list[i]);
+		}
+		if (endsWith(list[i], suffix)) {
 			processFile(input, output, list[i]);
+		}
 	}
 }
 
 function processFile(input, output, file) {
 	// process each file
 
-	open(input + File.separator + file);
+	path = input + File.separator + file;
+	// open(input + File.separator + file); // works for native IJ files
+	run("Bio-Formats", "open=path color_mode=Default view=Hyperstack stack_order=XYCZT");
+	// run("Bio-Formats", "open=path autoscale color_mode=Default view=Hyperstack stack_order=XYCZT");
 	title = getTitle();
 	dotIndex = indexOf(title, ".");
 	basename = substring(title, 0, dotIndex);
