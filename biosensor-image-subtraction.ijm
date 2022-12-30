@@ -31,6 +31,7 @@ print("\\Clear"); // clears Log window
 roiManager("reset");
 run("Clear Results");
 
+
 // ---- Get image information ----
 id = getImageID();
 title = getTitle();
@@ -228,6 +229,7 @@ selectWindow("Log");
 run("Close");
 roiManager("reset");
 run("Clear Results");
+
 
 // ---- Helper functions ----
 

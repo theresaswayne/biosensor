@@ -1,61 +1,83 @@
+//@ File(label = "Image folder:", style = "directory") imageDir
+//@ File(label = "ROIs folder:", style = "directory") roiDir
+//@ File(label = "Output folder:", style = "directory") outputDir
+// @String(label = "Input image suffix", value = ".tif") suffix
+
 // scale image and rois.ijm
-// code snippet to show how to scale all ROIs so they mark the correct areas on a downsampled image
+// opens each of a folder of images and a corresponding set of ROIs.
+// bins 2x2 and scales down ROIs, and saves results.
+
+// TODO: Fix stack being saved as a single slice
+// TODO: Fix extra ROIs
+
+// note -- do  not nest the image, ROI, or output folders.
+// note -- if an roi is missing the macro will quit
+// TODO: skip file and alert user if the roi is not found
 
 // setup
 roiManager("reset");
+run("Bio-Formats Macro Extensions"); // required to open ND2 files
+setBatchMode("true");
 
-//open sample image
-run("Blobs (25K)");
+// process images
+processFolder(imageDir);
 
-// add some ROIs -- these should box several blobs 
-makeRectangle(58, 20, 35, 43);
-roiManager("Add");
-makeRectangle(183, 36, 23, 46);
-roiManager("Add");
-makeRectangle(159, 216, 46, 29);
-roiManager("Add");
-makeRectangle(32, 158, 27, 31);
-roiManager("Add");
+// clean up
+setBatchMode("false");
 
-// add some irregular ROIs -- these should outline several blobs
-doWand(77, 41, 70.0, "Legacy");
-roiManager("Add");
-doWand(133, 121, 70.0, "Legacy");
-roiManager("Add");
-doWand(102, 212, 70.0, "Legacy");
-roiManager("Add");
-doWand(183, 224, 70.0, "Legacy");
-roiManager("Add");
-doWand(38, 168, 70.0, "Legacy");
-roiManager("Add");
+function processFolder(input) {
+// scan folders/subfolders/files to find files with correct suffix
 
-roiManager("Show All with labels");
+	list = getFileList(input);
+	list = Array.sort(list);
+	for (i=0; i < list.length; i++) {
+		if (File.isDirectory(input + File.separator + list[i])) {
+			processFolder(input + File.separator +  list[i]);
+		}
+		if (endsWith(list[i], suffix)) {
+			processFile(input, roiDir, outputDir, list[i]);
+		}
+	}
+}
 
-run("In [+]");
-showMessage("Click OK to bin and scale.");
+function processFile(input, roi, output, file) {
+	// process each file
 
-run("Duplicate...", "title=binned");
-
-// bin the image by summing 2x2 arrays
-// make the image 32-bit to avoid saturation
-selectWindow("binned");
-run("32-bit");
-run("Bin...", "x=2 y=2 bin=Sum");
-// reset the contrast so we can see the blobs
-//run("Enhance Contrast", "saturated=0.35");
-resetMinAndMax();
-
-// select all ROIs and scale them
-numROIs = roiManager("count");
-roiManager("deselect"); // select all
-RoiManager.scale(0.5, 0.5, false); // 'Centered' box is unchecked
-
-selectWindow("binned");
-roiManager("Show All with labels");
-// zoom to same size as original image
-run("In [+]");
-run("In [+]");
-run("In [+]");
+	imagepath = input + File.separator + file;
+	// open(input + File.separator + file); // works for native IJ files
+	run("Bio-Formats", "open=imagepath color_mode=Default view=Hyperstack stack_order=XYCZT");
+	title = getTitle();
+	dotIndex = indexOf(title, ".");
+	basename = substring(title, 0, dotIndex);
+	
+	// open ROI file
+	roiManager("reset");
+	roiname = basename + "_ROIs.zip";
+	roipath = roi + File.separator + roiname;
+	roiManager("open", roipath);
+	
+	// sum adjacent pixels
+	selectWindow(title);
+	binname = basename + "_bin";
+	run("Duplicate...", "title=&binname");
+	selectWindow(binname);
+	run("32-bit");
+	run("Bin...", "x=2 y=2 bin=Sum");
+	
+	// select all ROIs and scale them
+	numROIs = roiManager("count");
+	roiManager("deselect"); // select all
+	RoiManager.scale(0.5, 0.5, false); // 'Centered' box is unchecked
+	
+	// save image and ROIs
+	selectWindow(binname);
+	saveAs("Tiff",  output + File.separator + binname + ".tif");
+	roiManager("deselect");
+	roiManager("save", output  + File.separator + basename + "_scaledROIs.zip");
+	close("*"); // all image windows
+	print("Processing: " + input + file);
+	print("Saving to: " + output);
+}
 
 
 
