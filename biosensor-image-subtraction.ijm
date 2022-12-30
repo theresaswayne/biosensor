@@ -38,12 +38,13 @@ title = getTitle();
 dotIndex = indexOf(title, ".");
 basename = substring(title, 0, dotIndex);
 getDimensions(width, height, channels, slices, frames);
-print("Processing",title);
+print("Processing",title, "with basename",basename);
 
 // ---- Prepare images ----
 run("Split Channels");
 numImage = "C"+Channel_Num+"-"+title;
 denomImage = "C"+Channel_Denom+"-"+title;
+print("Numerator is",numImage);
 if (Channel_Trans != 0) {
 	transImage = "C"+Channel_Trans+"-"+title;
 	}
@@ -169,6 +170,7 @@ else {
 setTool("freehand");
 middleSlice = round(slices/2);
 Stack.setPosition(1,middleSlice,1);
+run("Enhance Contrast", "saturated=0.35");
 waitForUser("Mark cells", "Draw ROIs and add to the ROI manager (press T after each).\nThen click OK");
 
 // rename ROIs for easier interpretation of results table
@@ -353,7 +355,7 @@ function subtractImage(Num, Denom, Trans) {
 	imageCalculator("Subtract create 32-bit stack", numImage,"Num_Reference");
 	selectWindow(numImage);
 	close();
-	selectWindow("Result of "+numImage);
+	selectWindow("Result of " + numImage);
 	saveAs("Tiff", outputDir  + File.separator + numImage + "_Num_sub.tif");
 	rename(numImage);
 	
