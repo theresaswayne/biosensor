@@ -8,14 +8,16 @@
 
 # ---- Setup ----
 
-require(tidyverse) # for data prcessing
-require(stringr)
+require(tidyverse) # for data processing
+require(stringr) # for string harvesting
 require(tcltk) # for directory choosing
 
 
 # ---- User opens a single results file ----
 
-datafile <- file.choose("Open a data file") # opens a file chooser window
+datafile <- tk_choose.files(default = "", caption = "Select the Results file",
+                             multi = FALSE, filters = NULL, index = 1)
+datadir <- dirname(datafile)
 
 # read the data into a file
 meas <- read_csv(file.path(datafile)) # errors result, but seems ok
