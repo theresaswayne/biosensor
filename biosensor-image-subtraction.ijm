@@ -159,7 +159,7 @@ rename("Ratio");
 
 // ---- Select cells and measure ----
 
-run("Set Measurements...", "area mean integrated display redirect=None decimal=2");
+run("Set Measurements...", "area mean integrated display redirect=None decimal=4");
 if (Channel_Trans != 0) {
 	transImage = "C"+Channel_Trans+"-"+title;
 	selectWindow(transImage);
