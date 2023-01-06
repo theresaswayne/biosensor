@@ -6,10 +6,9 @@
 # To use: 
 # 1. Create a CSV file with a format following the sample data in the reference.
 #   Each row is an observation (e.g. a cell measurement)
-#   Columns are Replicate, Treatment (experimental groups), and measurement of interest.
+#   Columns are Replicate, Treatment (experimental groups), and your measurement of interest. Additional columns will be ignored.
 #   The Treatment column might be given another name depending on the experiment -- e.g. Genotype
 # 2. Substitute your own column and experimental group names within the script
-# Limitations: Data filename cannot contain spaces
 
 # ---- Setup ----
 require(ggplot2)
@@ -24,25 +23,26 @@ datafile <- tk_choose.files(default = "", caption = "Select the data file",
 combined <- read.csv(datafile)
 
 # ---- Calculate the average of each replicate within each treatment (these will be the big dots) ----
-# Update the mutate line to include your measurement name 
+
 ReplicateAverages <- combined %>% 
   group_by(Treatment, Replicate) %>% 
-  summarise(across(everything(), list(mean = mean))) %>%
-  mutate(Speed = Speed_mean, .keep="unused")
+  summarise(across(everything(), list(mean = mean))) %>% # each column name XYZ will become XYZ_mean 
+  mutate(PixelRatio = PixelRatio_mean, .keep="unused") # substitute your measurement column name here
+  #  mutate(Speed = Speed_mean, .keep="unused")
 
 # ---- Create the plot ----
 
 # For aes(), x is the column containing the experimental groups, and y is the measurement column
-# For stat_compare_means, comparisons is a list of the groups to be compared
-# If you don't want to do the t-test, omit the stat_compare_means lines
-# If you want a statistical test on more than 2 groups, use method = kruskal.test()
+# stat_compare_means can be added to compute p values and show them on the plot.
+# Methods are described in the documentation for ggpubr:compare_means
 
-super <- ggplot(combined, aes(x=Treatment, y=Speed, color=factor(Replicate))) +
+
+super <- ggplot(combined, aes(x=Treatment, y=PixelRatio, color=factor(Replicate))) + # y = your measurement column
   geom_beeswarm(cex=3) + scale_colour_brewer(palette = "Set1") +
   geom_beeswarm(data=ReplicateAverages, size=8) +
-  stat_compare_means(data=ReplicateAverages, 
-                     comparisons = list(c("Control", "Drug")), 
-                     method="t.test", paired=FALSE) +
+  #stat_compare_means(data=ReplicateAverages, 
+  #                   comparisons = list(c("Control", "Drug")), 
+  #                   method="t.test", paired=FALSE) +
   theme(legend.position="none")
 
 # Show the plot on the plot window
