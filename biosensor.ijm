@@ -3,10 +3,13 @@
 //@ int(label="Channel for transmitted light -- select 0 if none", style = "spinner") Channel_Trans
 //@ string(label="Background subtraction method", choices={"Select an image area","Fixed values","None"}, style="listBox") Background_Method
 //@ string(label="Noise subtraction method", choices={"Select an image area", "Fixed values", "None"}, style="listBox") Noise_Method
+//@ string(label="Thresholding method", choices={"Default","Huang","Intermodes","IsoData","IJ_IsoData","Li","MaxEntropy","Mean","MinError","Minimum","Moments","Otsu","Percentile","RenyiEntropy","Shanbhag","Triangle","Yen"}, style="listBox") Thresh_Method
 //@ File(label = "Output folder:", style = "directory") outputDir
 
 // biosensor.ijm
-// ImageJ macro to generate a ratio image from a multichannel Z stack with background and noise determination
+// ImageJ macro to generate a ratio image from a multichannel Z stack
+// User can select independent methods for background and noise determination
+// No background image is required for this macro
 // Input: multi-channel Z stack image
 // Outputs: 
 //	mask and ratio images
@@ -15,18 +18,6 @@
 // Theresa Swayne, Columbia University, 2022-2023
 
 // TO USE: Open a multi-channel Z stack image. Run the macro. 
-
-// TODO: Condense choices so background and noise are handled the same way (otherwise we have 16 options)
-
-// TODO: Error handling
-// -- no image open 
-// -- user clicks OK with no background or ROIS selected
-// -- if no ROI -- measure whole image -- write to log
-
-// TODO MAYBE: 
-//	user sets threshold type
-// 	adapt for single plane images
-//  more graceful way to set background to NaN
 
 // --- Setup ----
 print("\\Clear"); // clears Log window
@@ -124,9 +115,10 @@ run("Subtract...", "value="+denomBG+" stack");
 imageCalculator("Add create 32-bit stack", numImage,denomImage);
 selectWindow("Result of "+numImage);
 rename("Sum");
-setAutoThreshold("MaxEntropy dark stack"); // change the threshold method if needed
+setAutoThreshold(Thresh_Method+" dark stack");
+print("Threshold used:",Thresh_Method);
 //setOption("BlackBackground", false);
-run("Convert to Mask", "method=MaxEntropy background=Dark black"); // change the threshold method if needed
+run("Convert to Mask", "method=&Thresh_Method background=Dark black");
 
 // divide the 8-bit mask by 255 to generate a 0,1 mask
 selectWindow("Sum");
