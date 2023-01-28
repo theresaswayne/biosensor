@@ -166,7 +166,7 @@ setTool("freehand");
 middleSlice = round(slices/2);
 Stack.setPosition(1,middleSlice,1);
 run("Enhance Contrast", "saturated=0.35");
-waitForUser("Mark cells", "Draw ROIs and add to the ROI manager (press T after each).\nThen click OK");
+waitForUser("Mark cells", "Draw ROIs and add to the ROI manager (press T after each),\nor open an ROI set.\nThen click OK");
 
 // rename ROIs for easier interpretation of results table
 
