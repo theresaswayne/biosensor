@@ -12,9 +12,6 @@
 // TO USE: Open a ratio image calculated by the biosensor macro. Run the script.
 // If intensity modulation is selected, the user will be prompted for the original data file
 
-// TODO maybe: Batch compatibility
-// TODO: Help text/readme for initial choices
-
 // ---- Setup ----
 roiManager("reset");
 

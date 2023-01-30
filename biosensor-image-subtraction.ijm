@@ -2,10 +2,12 @@
 //@ int(label="Channel for denominator", style = "spinner") Channel_Denom
 //@ int(label="Channel for transmitted light -- select 0 if none", style = "spinner") Channel_Trans
 //@ string(label="Background and noise subtraction method", choices={"Reference image",  "Select an image area","Fixed values","None"}, style="listBox") Background_Method
+//@ string(label="Thresholding method", choices={"Default","Huang","Intermodes","IsoData","IJ_IsoData","Li","MaxEntropy","Mean","MinError","Minimum","Moments","Otsu","Percentile","RenyiEntropy","Shanbhag","Triangle","Yen"}, style="listBox") Thresh_Method
 //@ File(label = "Output folder:", style = "directory") outputDir
 
 // biosensor-image-subtraction.ijm
-// ImageJ macro to generate a ratio image from a multichannel Z stack with background and noise determination
+// ImageJ macro to generate a ratio image from a multichannel Z stack
+// Background and noise are both determined by a method selected by the user
 // Input: multi-channel Z stack image, and optional reference image for background subtraction
 // Outputs: 
 //	mask and ratio images
@@ -16,15 +18,7 @@
 
 // TO USE: Open a multi-channel Z stack image. Run the macro.
 
-// TODO: Error handling
-// -- no image open 
-// -- user clicks OK with no background or ROIS selected
-// -- if no ROI -- measure whole image -- write to log
 
-// TODO MAYBE: 
-//	user sets threshold type
-// 	adapt for single plane images
-//  more graceful way to set background to NaN
 
 // --- Setup ----
 print("\\Clear"); // clears Log window
@@ -125,9 +119,10 @@ run("Subtract...", "value="+denomBG+" stack");
 imageCalculator("Add create 32-bit stack", numImage,denomImage);
 selectWindow("Result of "+numImage);
 rename("Sum");
-setAutoThreshold("MaxEntropy dark stack"); // change the threshold method if needed
+setAutoThreshold(Thresh_Method+" dark stack");
+print("Threshold used:",Thresh_Method);
 //setOption("BlackBackground", false);
-run("Convert to Mask", "method=MaxEntropy background=Dark black"); // change the threshold method if needed
+run("Convert to Mask", "method=&Thresh_Method background=Dark black");
 
 // divide the 8-bit mask by 255 to generate a 0,1 mask
 selectWindow("Sum");
@@ -171,7 +166,7 @@ setTool("freehand");
 middleSlice = round(slices/2);
 Stack.setPosition(1,middleSlice,1);
 run("Enhance Contrast", "saturated=0.35");
-waitForUser("Mark cells", "Draw ROIs and add to the ROI manager (press T after each).\nThen click OK");
+waitForUser("Mark cells", "Draw ROIs and add to the ROI manager (press T after each),\nor open an ROI set.\nThen click OK");
 
 // rename ROIs for easier interpretation of results table
 
