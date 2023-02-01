@@ -5,13 +5,14 @@ This repository contains scripts to facilitate analysis of mitochondrially targe
 
 # Workflow
 ## 1. Pre-process, segment, and measure images.
-Option 1: `biosensor.ijm`: Background and noise are corrected using measured image areas or user-supplied fixed values, or no subtraction. Methods for background and noise correction can be selected independently.
+Option 1: `biosensor-image-subtraction.ijm` where background and noise are both handled by one of the following methods: 
+  1. Blank image
+  1. User-selected area within the image
+  1. Fixed value
+  1. No background or noise correction.
+  
+Option 2: `biosensor.ijm`: Background and noise are corrected using measured image areas or user-supplied fixed values, or no subtraction. Methods for background and noise correction can be selected independently.
 
-Option 2: `biosensor-image-subtraction.ijm` where background and noise are both handled by one of the following methods: 
-  a. A blank image
-  b. A user-selected area within the image
-  c. A fixed value
-  d. No background or noise correction.
   
 ## 2. Collate data from multiple cells.
 The most versatile script is `process_all_multiROI_tables.R`. This R script will calculate both pixelwise and regionwise ratios from results obtained in step 1. The regionwise ratios are less sensitive to imaging noise.
