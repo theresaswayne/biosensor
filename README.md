@@ -18,5 +18,5 @@ Option 2: `biosensor.ijm`: Background and noise are corrected using measured ima
 The most versatile script is `process_all_multiROI_tables.R`. This R script will calculate both pixelwise and regionwise ratios from results obtained in step 1. The regionwise ratios are less sensitive to imaging noise.
  
 ## 3. Generate color images.
-These images aid in the interpretation of ratio imaging results by converting ratio values to colors. Use the ImageJ script `colorize_ratio_image.ijm` to produce intensity-modulated or unmodulated images with calbration bars, using ratio images obtained in step 1.
+These images aid in the interpretation of ratio imaging results by converting ratio values to colors. Use the ImageJ script `colorize_ratio_image.ijm` to produce intensity-modulated or unmodulated images with calibration bars, using ratio images obtained in step 1.
   
