@@ -4,6 +4,7 @@
 //@ string(label="Background subtraction method", choices={"Select an image area","Fixed values","None"}, style="listBox") Background_Method
 //@ string(label="Noise subtraction method", choices={"Select an image area", "Fixed values", "None"}, style="listBox") Noise_Method
 //@ string(label="Thresholding method", choices={"Default","Huang","Intermodes","IsoData","IJ_IsoData","Li","MaxEntropy","Mean","MinError","Minimum","Moments","Otsu","Percentile","RenyiEntropy","Shanbhag","Triangle","Yen"}, style="listBox") Thresh_Method
+//@ int(label = "ROIs per cell", style = "spinner") ROIsPerCell
 //@ File(label = "Output folder:", style = "directory") outputDir
 
 // biosensor.ijm
@@ -15,6 +16,7 @@
 //	mask and ratio images
 //	measurements from numerator, denominator, and pixelwise ratio
 //	ROI set, log of background and noise levels
+//  If the user selects multiple ROIs per cell, the ROIs will be renamed to include cell number and ROI number
 // Theresa Swayne, Columbia University, 2022-2023
 
 // TO USE: Open a multi-channel Z stack image. Run the macro. 
@@ -166,11 +168,35 @@ waitForUser("Mark cells", "Draw ROIs and add to the ROI manager (press T after e
 // rename ROIs for easier interpretation of results table
 
 n = roiManager("count");
-for (i = 0; i < n; i++) {
+if (ROIsPerCell == 1) {
+	for (i = 0; i < n; i++) {
     roiManager("Select", i);
-    newName = "ROI_"+i+1;
+    cellNum = i+1;
+    newName = "Cell_"+cellNum+"_ROI_1";
     roiManager("Rename", newName);
+	}
 }
+else if (ROIsPerCell != 1) {
+	
+	// check for errors in number of ROIs
+	if (floor(n/ROIsPerCell) != n/ROIsPerCell) {
+		print("Number of ROIs is not correct!");
+		exit; 
+	}
+	// rename with cell number and ROI number
+	numCells = n/ROIsPerCell;
+	for (i = 0; i < numCells; i++) {
+		cellNum = i+1;
+		for (j = 0; j < ROIsPerCell; j++) {
+			roiNum = j+1;
+		    roiIndex = (i * ROIsPerCell) + j;
+		    roiManager("Select", roiIndex);
+		    newName = "Cell_"+cellNum+"_ROI_"+roiNum;
+    		roiManager("Rename", newName);
+		}
+	}
+}
+
 roiManager("deselect");  
 
 //  save individual channel results

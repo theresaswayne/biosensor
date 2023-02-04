@@ -1,5 +1,4 @@
 Processing sample input.nd2
-Measuring user-selected area
-Measured numerator channel 2 background mean 117
-Measured denominator channel 1 background mean 118
+No background was subtracted
 No noise level was provided
+Threshold used: MaxEntropy
