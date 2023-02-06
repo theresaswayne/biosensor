@@ -126,8 +126,9 @@ print("Threshold used:",Thresh_Method);
 //setOption("BlackBackground", false);
 run("Convert to Mask", "method=&Thresh_Method background=Dark black");
 
-// divide the 8-bit mask by 255 to generate a 0,1 mask
+// save the 8-bit mask, then divide by 255 to generate a 0,1 mask
 selectWindow("Sum");
+saveAs("Tiff", outputDir  + File.separator + basename + "_mask.tif");
 run("Divide...", "value=255 stack");
 rename("Mask");
 
@@ -233,8 +234,6 @@ roiManager("Multi Measure"); // user sees dialog to choose rows/columns for outp
 
 // ---- Save output files ----
 
-selectWindow("Mask");
-saveAs("Tiff", outputDir  + File.separator + basename + "_mask.tif");
 selectWindow(basename + "_ratio");
 saveAs("Tiff", outputDir  + File.separator + basename + "_ratio.tif");
 roiManager("deselect");

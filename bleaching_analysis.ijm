@@ -116,24 +116,32 @@ selectWindow(denomImage);
 run("Select None");
 run("Subtract...", "value="+denomBG+" stack");
 
-
-
 // ---- Segmentation and ratioing ----
 
 // is this a stack?
 if (slices > 1) {
 	zstack = true;
+	print("Z stack will be analyzed as a sum projection");
 	// sum up all of the Z slices
 	selectWindow(numImage);
 	run("Z Project...", "projection=[Sum Slices] all");
+	selectWindow(numImage);
+	close();
+	selectWindow("SUM_"+numImage);
+	rename(numImage);
 	selectWindow(denomImage);
 	run("Z Project...", "projection=[Sum Slices] all");
+	selectWindow(denomImage);
+	close();
+	selectWindow("SUM_"+denomImage);
+	rename(denomImage);
 }
-else if (slices = 1) {
+else if (slices == 1) {
 	zstack = false;
 }
 
 // threshold on the sum of the 2 images
+print("Summing the numerator and denominator");
 imageCalculator("Add create 32-bit stack", numImage,denomImage); // still a stack because of time
 selectWindow("Result of "+numImage);
 rename("Sum");
@@ -148,8 +156,9 @@ print("Threshold used:",Thresh_Method);
 //setOption("BlackBackground", false);
 run("Convert to Mask", "method=&Thresh_Method background=Dark black");
 
-// divide the 8-bit mask by 255 to generate a 0,1 mask
+// save the 8-bit mask, then divide by 255 to generate a 0,1 mask
 selectWindow("Sum");
+saveAs("Tiff", outputDir  + File.separator + basename + "_mask.tif");
 run("Divide...", "value=255 stack");
 rename("Mask");
 
@@ -157,6 +166,7 @@ rename("Mask");
 // (a 32-bit result is required so we can change the background to NaN later)
 // Apply an additional threshold based on the noise level to eliminate erroneous ratios caused by low signal
 
+print("Masking the images");
 imageCalculator("Multiply create 32-bit stack", numImage, "Mask");
 selectWindow("Result of "+numImage);
 rename("Masked Num");
@@ -203,6 +213,7 @@ if (n >= 1) {
 	}
 }
 else if (n == 0) {
+	print("Analyzing entire image");
 	run("Select All");
 	roiManager("Add");
 	roiManager("Select", 0);
@@ -242,8 +253,7 @@ roiManager("Multi Measure"); // user sees dialog to choose rows/columns for outp
 
 // ---- Save output files ----
 
-selectWindow("Mask");
-saveAs("Tiff", outputDir  + File.separator + basename + "_mask.tif");
+
 selectWindow(basename + "_ratio");
 saveAs("Tiff", outputDir  + File.separator + basename + "_ratio.tif");
 roiManager("deselect");
@@ -381,6 +391,7 @@ function subtractImage(Num, Denom, Trans) {
 	// subtract the averaged reference from the input image
 	// save a copy, and then restore the image name
 	
+	print("Subtracting reference from numerator image");
 	imageCalculator("Subtract create 32-bit stack", numImage,"Num_Reference");
 	selectWindow(numImage);
 	close();
@@ -388,6 +399,7 @@ function subtractImage(Num, Denom, Trans) {
 	saveAs("Tiff", outputDir  + File.separator + numImage + "_Num_sub.tif");
 	rename(numImage);
 	
+	print("Subtracting reference from denominator image");
 	imageCalculator("Subtract create 32-bit stack", denomImage,"Denom_Reference");
 	selectWindow(denomImage);
 	close();
