@@ -169,32 +169,40 @@ waitForUser("Mark cells", "Draw ROIs and add to the ROI manager (press T after e
 // rename ROIs for easier interpretation of results table
 
 n = roiManager("count");
-if (ROIsPerCell == 1) {
-	for (i = 0; i < n; i++) {
-    roiManager("Select", i);
-    cellNum = i+1;
-    newName = "Cell_"+cellNum+"_ROI_1";
-    roiManager("Rename", newName);
+if (n == 0) {
+	print("Analyzing entire image");
+	run("Select All");
+	roiManager("Add");
+	roiManager("Select", 0);
+    roiManager("Rename", "ROI_1");
 	}
-}
-else if (ROIsPerCell != 1) {
-	
-	// check for errors in number of ROIs
-	if (floor(n/ROIsPerCell) != n/ROIsPerCell) {
-		print("Number of ROIs is not correct!");
-		exit; 
-	}
-	// rename with cell number and ROI number
-	numCells = n/ROIsPerCell;
-	for (i = 0; i < numCells; i++) {
-		cellNum = i+1;
-		for (j = 0; j < ROIsPerCell; j++) {
-			roiNum = j+1;
-		    roiIndex = (i * ROIsPerCell) + j;
-		    roiManager("Select", roiIndex);
-		    newName = "Cell_"+cellNum+"_ROI_"+roiNum;
-    		roiManager("Rename", newName);
+else if (n >= 1) {
+	if (ROIsPerCell == 1) {
+		for (i = 0; i < n; i++) {
+		    roiManager("Select", i);
+		    cellNum = i+1;
+		    newName = "Cell_"+cellNum+"_ROI_1";
+		    roiManager("Rename", newName);
 		}
+	}
+	else if (ROIsPerCell != 1) {
+		// check for errors in number of ROIs
+		if (floor(n/ROIsPerCell) != n/ROIsPerCell) {
+			print("Number of ROIs is not correct!");
+			exit; 
+		}
+		// rename with cell number and ROI number
+		numCells = n/ROIsPerCell;
+		for (i = 0; i < numCells; i++) {
+			cellNum = i+1;
+			for (j = 0; j < ROIsPerCell; j++) {
+				roiNum = j+1;
+			    roiIndex = (i * ROIsPerCell) + j;
+			    roiManager("Select", roiIndex);
+			    newName = "Cell_"+cellNum+"_ROI_"+roiNum;
+	    		roiManager("Rename", newName);
+			}
+		}	
 	}
 }
 
