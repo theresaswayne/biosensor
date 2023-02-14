@@ -49,9 +49,9 @@ denommeas <- denommeas %>% select(1,contains("Mean"))
 # ---- Rename the columns to match the type of source image ----
 # preserve label in numerator table only
 
-meas <- meas %>% rename_with( ~ paste0("Ratio_", .x), contains("Cell"))
-nummeas <- nummeas %>% rename_with( ~ paste0("Num_", .x), contains("Cell"))
-denommeas <-denommeas %>% rename_with( ~ paste0("Denom_", .x), contains("Cell"))
+meas <- meas %>% rename_with( ~ paste0("Ratio_", .x), contains("ROI"))
+nummeas <- nummeas %>% rename_with( ~ paste0("Num_", .x), contains("ROI"))
+denommeas <-denommeas %>% rename_with( ~ paste0("Denom_", .x), contains("ROI"))
 
 # ---- Create a column for the # of exposures 
 
@@ -67,7 +67,7 @@ allmeas <- inner_join(numdenommeas, meas, by=NULL)
 # ---- Calculate the values normalized to time 0 ----
 
 normalize <- function(x, na.rm = FALSE) (x/x[1])
-allmeas_norm <- allmeas %>% mutate_at(vars(matches("Cell")), normalize)
+allmeas_norm <- allmeas %>% mutate_at(vars(matches("ROI")), normalize)
 
 # ---- Save CSVs ----
 
