@@ -30,12 +30,17 @@ Two options are available for colorization:
 * Unmodulated image. In this case, the color image intensity is at the maximum for each pixel, and the color scheme can be chosen by the user.
 * Intensity-modulated image. In this case, the user also supplies the original fluorescence image, and the colorized image intensity is set from the intensities in the original image. This cam produce a more appealing result, because pixels with less signal in the original image are less prominent in the colorized image.
 
+### process_multiROI_tables.R
+
+This R script will calculate both pixelwise and regionwise ratios from results obtained in step 1. The regionwise ratios are less sensitive to imaging noise.
+
 ### bleaching_analysis.ijm
 
 This ImageJ macro measures change in biosensor intensity over time. It can be used to help optimize imaging conditions to avoid photobleaching. The input is a multichannel time-lapse image (Z stack or single slice). The output is a table of measurements of each channel over time.
 
-### process_all_multiROI_tables.R
-This R script will calculate both pixelwise and regionwise ratios from results obtained in step 1. The regionwise ratios are less sensitive to imaging noise.
+### bleaching_calculation.R
+
+This R script will 
 
 ## Sample data
 
