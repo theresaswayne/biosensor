@@ -1,0 +1,14 @@
+ ,Label,Area1,Mean1,IntDen1,RawIntDen1,Area2,Mean2,IntDen2,RawIntDen2,Area3,Mean3,IntDen3,RawIntDen3,Area4,Mean4,IntDen4,RawIntDen4
+1,sample input_ratio,0.00,NaN,NaN,NaN,0.00,NaN,NaN,NaN,0.00,NaN,NaN,NaN,0.00,NaN,NaN,NaN
+2,sample input_ratio,0.00,NaN,NaN,NaN,0.00,NaN,NaN,NaN,0.00,NaN,NaN,NaN,0.00,NaN,NaN,NaN
+3,sample input_ratio,0.00,NaN,NaN,NaN,0.00,NaN,NaN,NaN,0.00,NaN,NaN,NaN,0.00,NaN,NaN,NaN
+4,sample input_ratio,0.00,NaN,NaN,NaN,0.00,NaN,NaN,NaN,0.00,NaN,NaN,NaN,0.00,NaN,NaN,NaN
+5,sample input_ratio,0.00,NaN,NaN,NaN,0.00,NaN,NaN,NaN,0.00,NaN,NaN,NaN,0.00,NaN,NaN,NaN
+6,sample input_ratio,0.58,10.18,5.85,498.71,0.41,24.47,10.05,856.35,0.60,13.20,7.90,673.31,0.43,17.94,7.79,663.83
+7,sample input_ratio,2.02,6.60,13.32,1134.79,1.35,8.66,11.68,995.48,0.95,5.47,5.20,442.80,1.84,16.59,30.56,2604.14
+8,sample input_ratio,2.16,6.22,13.43,1144.27,2.10,10.88,22.86,1947.53,1.04,8.84,9.24,786.91,2.49,10.17,25.29,2155.04
+9,sample input_ratio,2.28,10.37,23.60,2011.30,1.78,6.13,10.94,931.94,1.49,8.33,12.42,1058.43,1.37,8.13,11.16,950.92
+10,sample input_ratio,2.90,6.87,19.92,1697.61,1.21,5.36,6.48,552.23,1.29,5.01,6.47,551.43,0.74,8.13,6.01,512.37
+11,sample input_ratio,2.65,4.64,12.31,1048.90,1.02,6.13,6.26,533.17,1.06,6.44,6.80,579.56,0.14,1.72,0.24,20.67
+12,sample input_ratio,1.10,3.66,4.04,343.94,1.17,6.23,7.32,623.48,2.48,10.53,26.09,2222.86,0.00,NaN,NaN,NaN
+13,sample input_ratio,0.18,1.76,0.31,26.39,0.43,2.64,1.15,97.61,1.63,3.24,5.29,450.80,0.00,NaN,NaN,NaN
