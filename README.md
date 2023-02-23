@@ -1,7 +1,6 @@
 # biosensor
 Code for image analysis of ratiometric biosensors
 
-
 # Purpose
 
 This repository contains scripts to facilitate analysis of mitochondrially targeted ratiometric biosensors using Fiji/ImageJ and R. (Manuscript in preparation, JoVE, 2023)
@@ -23,9 +22,20 @@ In this macro, background and noise are both handled by the same user-selected m
 
 # Supporting scripts
 
+## colorize_ratio_image.ijm
+
+This ImageJ macro takes a masked ratio image as input, and generates a colorized image with calibration bar for easier interpretation of the values. The user can set the intensity range for optimal contrast and accurate comparison of images.
+
+Two options are available for colorization: 
+. Unmodulated image. In this case, the color image intensity is at the maximum for each pixel, and the color scheme can be chosen by the user.
+. Intensity modulated image. In this case, the user also supplies the original fluorescence image, and the colorized image intensity is set from the intensities in the original image. This cam produce a more appealing result, because pixels with less signal in the original image are less prominent in the colorized image.
+
 ## bleaching_analysis.ijm
 
-This ImageJ macro measures change in biosensor intensity over time. It can be used to help optimize imaging conditions to avoid photobleaching. THe input is a multichannel time-lapse image (Z stack or single slice). The output is a table of measurements of each channel over time.
+This ImageJ macro measures change in biosensor intensity over time. It can be used to help optimize imaging conditions to avoid photobleaching. The input is a multichannel time-lapse image (Z stack or single slice). The output is a table of measurements of each channel over time.
+
+# Sample data
+
 
 # Workflow
 ## 1. Pre-process, segment, and measure images.
