@@ -7,7 +7,11 @@ This repository contains scripts to facilitate analysis of mitochondrially targe
 
 ## ImageJ macros for biosensor ratio image calculation and analysis
 
-The biosensor macros take a Z-stack multichannel image as input, and produce a background-corrected, masked ratio image, as well as measurements of user-selected areas and a log file. There are 2 macros with different options for correction of noise nad background. Noise calculation is used to supplement the thresholding step.
+The biosensor macros take a Z-stack multichannel image as input, and produce a background-corrected, masked ratio image, as well as measurements of user-selected areas and a log file. 
+
+The user can select ROIs (or if no ROIs are supplied, the whole image is measured). The channel intensities and ratio values for each Z slice are calculated and saved in a CSV file.
+
+There are 2 macros with different options for correction of noise and background. (Noise calculation is used to supplement the thresholding step by excluding pixels below the noise level).
 
 ### biosensor.ijm
 Macro with basic background and noise correction. Background and noise are corrected using measured image areas, user-supplied fixed values, or no subtraction. Methods for background and noise correction can be selected independently.
@@ -40,7 +44,7 @@ This ImageJ macro measures change in biosensor intensity over time. It can be us
 
 ### bleaching_calculation.R
 
-This R script will 
+This R script will collate measurements from the bleaching analysis macro, and calculate  intensities for each channel over time, normalized to the first timepoint.
 
 ## Sample data
 
