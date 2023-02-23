@@ -1,7 +1,31 @@
 # biosensor
-Code for image analysis of ratiometric biosensors in yeast mitochondria
+Code for image analysis of ratiometric biosensors
 
-This repository contains scripts to facilitate analysis of mitochondrially targeted biosensors using Fiji/ImageJ and R. (Manuscript in preparation, 2023)
+
+# Purpose
+
+This repository contains scripts to facilitate analysis of mitochondrially targeted ratiometric biosensors using Fiji/ImageJ and R. (Manuscript in preparation, JoVE, 2023)
+
+# ImageJ macros for biosensor ratio image calculation and analysis
+
+The biosensor macros take a Z-stack multichannel image as input, and produce a background-corrected, masked ratio image, as well as measurements of user-selected areas and a log file. There are 2 macros with different options for correction of noise nad background. Noise calculation is used to supplement the thresholding step.
+
+## biosensor.ijm
+Macro with basic background and noise correction. Background and noise are corrected using measured image areas, user-supplied fixed values, or no subtraction. Methods for background and noise correction can be selected independently.
+
+## biosensor-image-subtraction.ijm
+ImageJ macro supporting the following methods for background and noise correction:
+  1. Blank image
+  1. User-selected area within the image
+  1. Fixed value
+  1. No correction.
+In this macro, background and noise are both handled by the same user-selected method.
+
+# Supporting scripts
+
+## bleaching_analysis.ijm
+
+This ImageJ macro measures change in biosensor intensity over time. It can be used to help optimize imaging conditions to avoid photobleaching. THe input is a multichannel time-lapse image (Z stack or single slice). The output is a table of measurements of each channel over time.
 
 # Workflow
 ## 1. Pre-process, segment, and measure images.
