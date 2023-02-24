@@ -84,15 +84,12 @@ denom_areas <- denom_sums %>%
   select(contains("Area"))
 denomArea_cols <- colnames(denom_areas)
 
-# get ROI names -- for new style ROI names (Area(ROI_1)_sum)
-Area_rois <- str_replace(Area_cols, "Area\\(ROI_([0-9]{1,2})\\)_sum", "\\1") %>%
-  as.numeric()
-numArea_rois <- str_replace(numArea_cols, "Area\\(ROI_([0-9]{1,2})\\)_sum", "\\1") %>%
-  as.numeric()
-denomArea_rois <- str_replace(denomArea_cols, "Area\\(ROI_([0-9]{1,2})\\)_sum", "\\1") %>%
-  as.numeric()
+# collect ROI names -- for new style ROI names (Area(ROI_1)_sum)
+Area_rois <- str_replace(Area_cols, "Area\\((.*)\\)_sum", "\\1")
+numArea_rois <- str_replace(numArea_cols, "Area\\((.*)\\)_sum", "\\1")
+denomArea_rois <- str_replace(denomArea_cols, "Area\\((.*)\\)_sum", "\\1")
 
-# get ROI names -- for old style ROI names (IJ default, Area1_sum)
+# collect ROI names -- for IJ default ROI names (Area1_sum)
 # numArea_rois <- str_replace(numArea_cols, "Area([0-9]{1,2})_sum", "\\1") %>%
 #   as.numeric()
 # denomArea_rois <- str_replace(denomArea_cols, "Area([0-9]{1,2})_sum", "\\1") %>%
@@ -110,8 +107,7 @@ denomArea_table <- bind_cols(ROI = denomArea_rois, Denom_Area = denomArea_vals)
 meas_intdens <- meas_sums %>% 
   select(contains("IntDen") & !contains("Raw"))
 IntDen_cols <- colnames(meas_intdens)
-IntDen_rois <- str_replace(IntDen_cols, "IntDen\\(ROI_([0-9]{1,2})\\)_sum", "\\1") %>%
-  as.numeric()
+IntDen_rois <- str_replace(IntDen_cols, "IntDen\\((.*)\\)_sum", "\\1")
 IntDen_vals <- meas_intdens[1,] %>% as.numeric()
 IntDen_table <- bind_cols(ROI = IntDen_rois, IntDen = IntDen_vals)
 
@@ -119,20 +115,14 @@ IntDen_table <- bind_cols(ROI = IntDen_rois, IntDen = IntDen_vals)
 num_intdens <- num_sums %>% 
   select(contains("IntDen") & !contains("Raw"))
 numIntDen_cols <- colnames(num_intdens)
-numIntDen_rois <- str_replace(numIntDen_cols, "IntDen\\(ROI_([0-9]{1,2})\\)_sum", "\\1") %>%
-  as.numeric()
-# numIntDen_rois <- str_replace(numIntDen_cols, "IntDen([0-9]{1,2})_sum", "\\1") %>%
-#   as.numeric()
+numIntDen_rois <- str_replace(numIntDen_cols, "IntDen\\((.*)\\)_sum", "\\1")
 numIntDen_vals <- num_intdens[1,] %>% as.numeric()
 numIntDen_table <- bind_cols(ROI = numIntDen_rois, Num_IntDen = numIntDen_vals)
 
 denom_intdens <- denom_sums %>% 
   select(contains("IntDen") & !contains("Raw"))
 denomIntDen_cols <- colnames(denom_intdens)
-denomIntDen_rois <- str_replace(denomIntDen_cols, "IntDen\\(ROI_([0-9]{1,2})\\)_sum", "\\1") %>%
-  as.numeric()
-# denomIntDen_rois <- str_replace(denomIntDen_cols, "IntDen([0-9]{1,2})_sum", "\\1") %>%
-#   as.numeric()
+denomIntDen_rois <- str_replace(denomIntDen_cols, "IntDen\\((.*)\\)_sum", "\\1")
 denomIntDen_vals <- denom_intdens[1,] %>% as.numeric()
 denomIntDen_table <- bind_cols(ROI = denomIntDen_rois, Denom_IntDen = denomIntDen_vals)
 
