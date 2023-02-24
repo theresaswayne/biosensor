@@ -94,12 +94,18 @@ else if (Color_Method == "Unmodulated") {
 	setMinAndMax(minDisplay, maxDisplay);
 	
 	Dialog.create("Select color scheme");
-	Dialog.addChoice("Display LUT:", newArray("Fire", "Rainbow RGB"));
+	Dialog.addChoice("Display LUT:", newArray("Fire", "Rainbow RGB", "Import from LUT file"));
 	Dialog.show();
 	
 	Color_LUT  = Dialog.getChoice();
 	
-	run(Color_LUT); 
+	if (Color_LUT == "Import from LUT file") {
+		showMessage("On the next dialog please open the desired LUT file");
+		run("LUT... ");
+	}
+	else {
+		run(Color_LUT); 
+	}
 	
 	// create a color calibration bar 
 	// (change the parameters to suit your preference)
