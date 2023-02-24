@@ -1,14 +1,14 @@
- ,Label,Area(Cell_1_ROI_1),Mean(Cell_1_ROI_1),IntDen(Cell_1_ROI_1),RawIntDen(Cell_1_ROI_1),Area(Cell_2_ROI_1),Mean(Cell_2_ROI_1),IntDen(Cell_2_ROI_1),RawIntDen(Cell_2_ROI_1)
-1,multichannelZStack_ratio,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN
-2,multichannelZStack_ratio,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN
-3,multichannelZStack_ratio,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN
-4,multichannelZStack_ratio,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN
-5,multichannelZStack_ratio,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN
-6,multichannelZStack_ratio,0.3873,5.9189,2.2923,195.3225,0.0000,NaN,NaN,NaN
-7,multichannelZStack_ratio,1.5492,4.1327,6.4023,545.5221,0.3521,7.0724,2.4901,212.1731
-8,multichannelZStack_ratio,2.1477,3.6940,7.9336,675.9961,1.1619,5.4180,6.2950,536.3824
-9,multichannelZStack_ratio,1.8895,3.3014,6.2381,531.5325,2.7228,4.9888,13.5834,1157.3988
-10,multichannelZStack_ratio,2.0773,3.2732,6.7994,579.3540,3.9785,3.8994,15.5138,1321.8820
-11,multichannelZStack_ratio,2.3707,4.1572,9.8554,839.7535,3.2392,3.0395,9.8455,838.9058
-12,multichannelZStack_ratio,2.3355,3.1928,7.4567,635.3647,1.7017,3.0066,5.1164,435.9577
-13,multichannelZStack_ratio,0.9858,1.4639,1.4431,122.9663,0.7042,1.6406,1.1552,98.4333
+ ,Label,Area(Cell_1_ROI_1),Mean(Cell_1_ROI_1),IntDen(Cell_1_ROI_1),RawIntDen(Cell_1_ROI_1),Area(Cell_2_ROI_1),Mean(Cell_2_ROI_1),IntDen(Cell_2_ROI_1),RawIntDen(Cell_2_ROI_1),Area(Cell_3_ROI_1),Mean(Cell_3_ROI_1),IntDen(Cell_3_ROI_1),RawIntDen(Cell_3_ROI_1)
+1,multichannelZStack_ratio,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN
+2,multichannelZStack_ratio,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN
+3,multichannelZStack_ratio,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN
+4,multichannelZStack_ratio,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN
+5,multichannelZStack_ratio,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN
+6,multichannelZStack_ratio,0.0000,NaN,NaN,NaN,0.4342,6.1893,2.6876,229.0042,0.5164,9.9554,5.1409,438.0371
+7,multichannelZStack_ratio,0.4225,7.9106,3.3422,284.7824,1.7135,4.4587,7.6398,650.9638,0.6807,4.2293,2.8788,245.2980
+8,multichannelZStack_ratio,1.2792,5.6401,7.2150,614.7662,2.2651,3.9594,8.9683,764.1591,0.3873,1.2817,0.4964,42.2963
+9,multichannelZStack_ratio,3.0044,5.3085,15.9492,1358.9857,1.9717,3.4461,6.7946,578.9478,0.5281,9.7922,5.1715,440.6507
+10,multichannelZStack_ratio,4.1076,4.0426,16.6054,1414.8950,2.1829,3.4429,7.5155,640.3732,1.4670,5.8393,8.5663,729.9108
+11,multichannelZStack_ratio,3.5091,3.1029,10.8882,927.7534,2.5115,4.4376,11.1451,949.6375,2.4411,4.5984,11.2252,956.4697
+12,multichannelZStack_ratio,1.7722,3.0371,5.3821,458.5950,2.4176,3.2605,7.8826,671.6569,2.7932,3.6971,10.3266,879.8989
+13,multichannelZStack_ratio,0.8098,1.5929,1.2899,109.9104,1.1619,1.4620,1.6986,144.7345,1.0210,1.5765,1.6097,137.1562

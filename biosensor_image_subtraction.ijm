@@ -21,7 +21,6 @@
 // TO USE: Open a multi-channel Z stack image. Run the macro.
 
 
-
 // --- Setup ----
 print("\\Clear"); // clears Log window
 roiManager("reset");

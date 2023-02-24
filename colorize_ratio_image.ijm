@@ -1,16 +1,17 @@
-//@ String (label = "Colorization method:",choices={"Intensity modulated", "Equal brightness"}, style="radioButtonHorizontal") Color_Method
+//@ String (label = "Colorization method:",choices={"Intensity modulated", "Unmodulated"}, style="radioButtonHorizontal") Color_Method
 //@ Double (label="Minimum displayed value:", value=0.00, persist=true, style="format:#.##") minDisplay
 //@ Double (label="Maximum displayed value:", value=1.00, persist=true, style="format:#.##") maxDisplay
 //@ String (label = "Projection mode for Z stacks:", choices={"Max", "Average"}, style="radioButtonHorizontal") Proj_Method
 //@ File(label = "Output folder:", style = "directory") outputDir
 
-// ImageJ/Fiji macro to calculate a ratio image from a multichannel image with interactive background selection
-// Outputs: a colorized RGB image with calibration bar
+// ImageJ/Fiji macro to create colorized images with desired intensity range from ratio images
+// Outputs: colorized RGB images with and without calibration bars
 // 
 // Theresa Swayne, Columbia University, 2022-2023
 
-// TO USE: Open a ratio image calculated by the biosensor macro. Run the script.
+// TO USE: Open a ratio image. Run the script.
 // If intensity modulation is selected, the user will be prompted for the original data file
+// The Unmodulated option produces an image with each pixel having equal brightness, so it is most suitable for masked images
 
 // ---- Setup ----
 roiManager("reset");
@@ -23,7 +24,7 @@ basename = substring(title, 0, dotIndex);
 getDimensions(width, height, channels, slices, frames);
 selectWindow(title);
 
-// Make projection if needed and rename the input ratio image to Ratio
+// ---- Project if needed ----
 if (slices > 1) {
 	if (Proj_Method == "Max") {
 		run("Z Project...", "projection=[Max Intensity]");
@@ -44,7 +45,7 @@ else {
 	rename("Ratio");
 }
 
-// Create colorized image following the user's choice of method
+// ---- Create colorized image ----
 
 if (Color_Method == "Intensity modulated") {
 	// create the HSB stack
@@ -53,8 +54,7 @@ if (Color_Method == "Intensity modulated") {
 	// set display contrast and LUT on the ratio image
 	selectWindow("Ratio");
 	setMinAndMax(minDisplay, maxDisplay);
-	//run("Rainbow RGB");
-	run("Spectrum"); // must be this to correspond to the hue value in the HSV image
+	run("Spectrum"); // required to correspond to the hue value in the HSV image
 	
 	// create a color calibration bar 
 	// (change the parameters to suit your preference)
@@ -78,8 +78,8 @@ if (Color_Method == "Intensity modulated") {
 	rename("ColorWithBar");
 	
 	// save images
-	selectWindow("Intensity_Modulated");
-	saveAs("Tiff", outputDir  + File.separator + basename + "_IntensityModulated_HSV.tif");
+	//selectWindow("Intensity_Modulated");
+	//saveAs("Tiff", outputDir  + File.separator + basename + "_IntensityModulated_HSB.tif");
 
 	selectWindow("Color");
 	run("Hide Overlay");
@@ -89,7 +89,7 @@ if (Color_Method == "Intensity modulated") {
 	saveAs("Tiff", outputDir  + File.separator + basename + "_IntensityModulated_RGB_with_bar.tif");
 	
 }
-else if (Color_Method == "Equal brightness") {
+else if (Color_Method == "Unmodulated") {
 	selectWindow("Ratio");
 	setMinAndMax(minDisplay, maxDisplay);
 	
@@ -134,7 +134,7 @@ else {
 	showMessage("I don't know what color method to use");
 }
 
-// ---- Clean up and display all of the windows ----
+// ---- Clean up  ----
 roiManager("reset");
 close("*"); // all image windows
 
@@ -170,9 +170,9 @@ function intensity_mod(min, max) {
 		rename("Raw");
 	}
 	// get the channels of interest
-	Dialog.create("Which channels to use for intensity modulation?"); // you can use the same or different channels
-	Dialog.addNumber("First channel", 1);
-	Dialog.addNumber("Second channel", 2);
+	Dialog.create("Which channels to use for intensity information? (provide 1 or 2 channel numbers)"); // you can use the same or different channels
+	Dialog.addNumber("Fluorescence Channel A", 1);
+	Dialog.addNumber("Fluorescence Channel B", 2);
 	Dialog.show();
 	firstCh = Dialog.getNumber();
 	secondCh = Dialog.getNumber();
@@ -222,7 +222,7 @@ function intensity_mod(min, max) {
 	run("Copy");
 	run("Select None");
 	selectWindow("Intensity_Modulated");
-	setSlice(3); // value
+	setSlice(3); // brightness
 	run("Select All");
 	run("Paste");
 	run("Select None");

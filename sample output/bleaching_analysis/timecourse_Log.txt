@@ -1,0 +1,12 @@
+Processing timecourse.tif with basename timecourse
+Numerator is C2-timecourse.tif
+Subtracting blank image blank.tif
+Subtracting blank image from numerator
+Subtracting blank image from denominator
+Blank numerator channel 2 background StdDev 12
+Blank denominator channel 1 background StdDev 13
+Z stack will be analyzed as a sum projection
+Summing the numerator and denominator
+Threshold used: Otsu
+Masking the images
+Analyzing entire image

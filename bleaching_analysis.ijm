@@ -1,7 +1,7 @@
 //@ int(label="Channel for numerator", style = "spinner") Channel_Num
 //@ int(label="Channel for denominator", style = "spinner") Channel_Denom
 //@ int(label="Channel for transmitted light -- select 0 if none", style = "spinner") Channel_Trans
-//@ string(label="Background and noise subtraction method", choices={"Reference image",  "Select an image area","Fixed values","None"}, style="listBox") Background_Method
+//@ string(label="Background and noise subtraction method", choices={"Blank image",  "Select an image area","Fixed values","None"}, style="listBox") Background_Method
 //@ string(label="Thresholding method", choices={"Default","Huang","Intermodes","IsoData","IJ_IsoData","Li","MaxEntropy","Mean","MinError","Minimum","Moments","Otsu","Percentile","RenyiEntropy","Shanbhag","Triangle","Yen"}, style="listBox") Thresh_Method
 //@ File(label = "Output folder:", style = "directory") outputDir
 
@@ -15,10 +15,9 @@
 //	timecourse measurements from numerator, denominator, and pixelwise ratio
 //	ROI set (if applicable), log of background and noise levels
 //  if no ROI is selected, the whole image will be measured
-
 //	subtracted images (if applicable)
 
-// Usage: Open an image. Run the macro.
+// Usage: Open a time-lapse image. Run the macro.
 
 // --- Setup ----
 print("\\Clear"); // clears Log window
@@ -51,14 +50,14 @@ if (Channel_Trans != 0) {
 // Noise values are used to threshold each channel after segmentation, before ratioing
 // Noise, if measured, is estimated as the standard deviation of the background
 
-if (Background_Method == "Reference image") {
+if (Background_Method == "Blank image") {
 	numBG = 0;
 	denomBG = 0;
 	imgSubResults = subtractImage(Channel_Num, Channel_Denom, Channel_Trans);
 	numNoise = imgSubResults[0];
 	denomNoise = imgSubResults[1];
-	print("Reference numerator channel "+Channel_Num+" background StdDev",numNoise);
-	print("Reference denominator channel "+Channel_Denom+" background StdDev",denomNoise);
+	print("Blank numerator channel "+Channel_Num+" background StdDev",numNoise);
+	print("Blank denominator channel "+Channel_Denom+" background StdDev",denomNoise);
 }
 
 if (Background_Method == "Select an image area") { // interactive selection
@@ -322,23 +321,22 @@ function measureBackground(Num, Denom, Trans) {
 
 function subtractImage(Num, Denom, Trans) {
 
-// Takes an input image and a user-supplied multichannel reference image. 
+// Takes an input image and a user-supplied multichannel blank reference image. 
 // Calculates the noise in the reference image as the standard deviation of the pixel values (by channel).
 // Subtracts the average of the reference stack from the input stack (by channel).
 // Returns the corrected channels and the SD values
 	
-	// get the reference image
-	showMessage("On the next dialog please open the reference image file");
-	refPath = File.openDialog("Select the reference image file");
+	// get the blank reference image
+	showMessage("On the next dialog please open the blank image file");
+	refPath = File.openDialog("Select the blank image file"); // this window title may not appear on MacOS
   	open(refPath); // open the file
   	
-  	//dir = File.getParent(rawPath);
 	refName = File.getName(refPath);
 	refDotIndex = indexOf(refName, ".");
 	refBasename = substring(refName, 0, refDotIndex);
 	
 	// write info to the log
-	print("Subtracting reference image",refName);
+	print("Subtracting blank image",refName);
 	
 	selectWindow(refName);
 	getDimensions(refwidth, refheight, refchannels, refslices, refframes);
@@ -391,7 +389,7 @@ function subtractImage(Num, Denom, Trans) {
 	// subtract the averaged reference from the input image
 	// save a copy, and then restore the image name
 	
-	print("Subtracting reference from numerator image");
+	print("Subtracting blank image from numerator");
 	imageCalculator("Subtract create 32-bit stack", numImage,"Num_Reference");
 	selectWindow(numImage);
 	close();
@@ -399,7 +397,7 @@ function subtractImage(Num, Denom, Trans) {
 	saveAs("Tiff", outputDir  + File.separator + numImage + "_Num_sub.tif");
 	rename(numImage);
 	
-	print("Subtracting reference from denominator image");
+	print("Subtracting blank image from denominator");
 	imageCalculator("Subtract create 32-bit stack", denomImage,"Denom_Reference");
 	selectWindow(denomImage);
 	close();

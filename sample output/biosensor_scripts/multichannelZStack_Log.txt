@@ -1,7 +1,5 @@
 Processing multichannelZStack.tif with basename multichannelZStack
-Measuring user-selected area
-Measured numerator channel 2 background mean 117
-Measured denominator channel 1 background mean 118
-Measured numerator channel 2 background StdDev 12
-Measured denominator channel 1 background StdDev 12
-Threshold used: MaxEntropy
+Subtracting blank image blank_image.tif
+Blank numerator channel 2 background StdDev 13
+Blank denominator channel 1 background StdDev 13
+Threshold used: Otsu
