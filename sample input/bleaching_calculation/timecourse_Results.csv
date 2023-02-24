@@ -1,0 +1,5 @@
+ ,Label,Area(ROI_1),Mean(ROI_1),IntDen(ROI_1),RawIntDen(ROI_1)
+1,timecourse_ratio,119.6849,1.7021,203.7146,17357.9258
+2,timecourse_ratio,112.0681,1.7495,196.0594,16705.6562
+3,timecourse_ratio,108.4065,1.7498,189.6858,16162.5762
+4,timecourse_ratio,102.6323,1.7606,180.6919,15396.2334

@@ -19,8 +19,8 @@ ZSteps <- 13 # replace with the # of z steps in each timepoint. Used to calculat
 
 datafiles <- tk_choose.files(default = "", caption = "Use Ctrl-click to select ALL THREE results files",
                              multi = TRUE, filters = NULL, index = 1)
-datadir <- dirname(datafiles)[1] # IMPORTANT select just one of the directories (they are the same)
-# note if datadir was not reduced to 1 element, it would read the table multiple times into the same dataframe!
+datadir <- dirname(datafiles)[1] # IMPORTANT: select just one of the directories (they are the same)
+# if datadir was not reduced to 1 element, it would read the table multiple times into the same dataframe!
 
 datanames <- basename(file.path(datafiles)) # file names without directory names
 
