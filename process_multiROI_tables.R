@@ -1,4 +1,4 @@
-# process_all_multiROI_tables.R
+# process_multiROI_tables.R
 # calculate data from ImageJ multimeasure tables
 
 # Assumptions:
