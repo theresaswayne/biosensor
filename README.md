@@ -22,6 +22,7 @@ ImageJ macro supporting the following methods for background and noise correctio
   1. User-selected area within the image
   1. Fixed value
   1. No correction.
+
 In this macro, background and noise are both handled by the same user-selected method.
 
 ## Supporting scripts
