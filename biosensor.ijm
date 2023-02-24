@@ -44,7 +44,7 @@ if (Channel_Trans != 0) {
 
 // ---- Background and noise handling ---
 // Background values are subtracted from each channel before initial segmentation
-// Noise values are used to threshold each channel after segmentation, before ratioing
+// After segmentation, noise values are used as a supplemental threshold for each channel, before ratioing
 // Noise, if measured, is estimated as the standard deviation of the background
 
 
@@ -119,7 +119,6 @@ selectWindow("Result of "+numImage);
 rename("Sum");
 setAutoThreshold(Thresh_Method+" dark stack");
 print("Threshold used:",Thresh_Method);
-//setOption("BlackBackground", false);
 run("Convert to Mask", "method=&Thresh_Method background=Dark black");
 
 // save the 8-bit mask, then divide by 255 to generate a 0,1 mask
@@ -136,14 +135,14 @@ imageCalculator("Multiply create 32-bit stack", numImage, "Mask");
 selectWindow("Result of "+numImage);
 rename("Masked Num");
 selectWindow("Masked Num");
-setThreshold(numNoise, 1000000000000000000000000000000.0000); // this should ensure all mask pixels are selected 
+setThreshold(numNoise, 1000000000000000000000000000000.0000); 
 run("NaN Background", "stack");
 
 imageCalculator("Multiply create 32-bit stack", denomImage, "Mask");
 selectWindow("Result of "+denomImage);
 rename("Masked Denom");
 selectWindow("Masked Denom");
-setThreshold(denomNoise, 1000000000000000000000000000000.0000); // this should ensure all mask pixels are selected 
+setThreshold(denomNoise, 1000000000000000000000000000000.0000); 
 run("NaN Background", "stack");
 
 // calculate the ratio image
@@ -211,7 +210,7 @@ roiManager("deselect");
 //  save individual channel results
 
 selectWindow("Masked Num");
-rename(basename + "_C"+Channel_Num+"_Num"); // so the results will have the original filename attached
+rename(basename + "_C"+Channel_Num+"_Num"); // results will have the original filename attached
 roiManager("deselect");
 roiManager("Multi Measure");
 selectWindow("Results");
@@ -219,7 +218,7 @@ saveAs("Results", outputDir  + File.separator + basename + "_NumResults.csv");
 run("Clear Results");
 
 selectWindow("Masked Denom");
-rename(basename +  "_C"+Channel_Denom+"_Denom"); // so the results will have the original filename attached
+rename(basename +  "_C"+Channel_Denom+"_Denom"); // results will have the original filename attached
 roiManager("deselect");
 roiManager("Multi Measure");
 selectWindow("Results");
@@ -229,10 +228,9 @@ run("Clear Results");
 // save ratio image results
 
 selectWindow("Ratio");
-rename(basename + "_ratio"); // so the results will have the original filename attached
+rename(basename + "_ratio"); // results will have the original filename attached
 roiManager("deselect");
-roiManager("Multi Measure"); // user sees dialog to choose rows/columns for output
-
+roiManager("Multi Measure"); 
 
 // ---- Save output files ----
 
@@ -275,7 +273,7 @@ function measureBackground(Num, Denom, Trans) {
 	
 	// measure background in numerator channel
 	selectWindow(numImage);
-	run("Restore Selection"); // TODO: save this in the ROI manager
+	run("Restore Selection"); 
 	run("Measure Stack...");
 	numBGs = Table.getColumn("Mean");
 	numSDs = Table.getColumn("StdDev");
@@ -287,7 +285,7 @@ function measureBackground(Num, Denom, Trans) {
 	// measure background in denominator channel
 	run("Clear Results");
 	selectWindow(denomImage);
-	run("Restore Selection"); // TODO: save this in the ROI manager
+	run("Restore Selection"); 
 	run("Measure Stack...");
 	denomBGs = Table.getColumn("Mean");
 	denomSDs = Table.getColumn("StdDev");

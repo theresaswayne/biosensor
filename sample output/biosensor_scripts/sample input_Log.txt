@@ -1,4 +1,0 @@
-Processing sample input.nd2
-No background was subtracted
-No noise level was provided
-Threshold used: MaxEntropy

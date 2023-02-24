@@ -1,0 +1,14 @@
+ ,Label,Area(Cell_1_ROI_1),Mean(Cell_1_ROI_1),IntDen(Cell_1_ROI_1),RawIntDen(Cell_1_ROI_1),Area(Cell_2_ROI_1),Mean(Cell_2_ROI_1),IntDen(Cell_2_ROI_1),RawIntDen(Cell_2_ROI_1)
+1,multichannelZStack_ratio,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN
+2,multichannelZStack_ratio,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN
+3,multichannelZStack_ratio,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN
+4,multichannelZStack_ratio,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN
+5,multichannelZStack_ratio,0.0000,NaN,NaN,NaN,0.0000,NaN,NaN,NaN
+6,multichannelZStack_ratio,0.3873,5.9189,2.2923,195.3225,0.0000,NaN,NaN,NaN
+7,multichannelZStack_ratio,1.5492,4.1327,6.4023,545.5221,0.3521,7.0724,2.4901,212.1731
+8,multichannelZStack_ratio,2.1477,3.6940,7.9336,675.9961,1.1619,5.4180,6.2950,536.3824
+9,multichannelZStack_ratio,1.8895,3.3014,6.2381,531.5325,2.7228,4.9888,13.5834,1157.3988
+10,multichannelZStack_ratio,2.0773,3.2732,6.7994,579.3540,3.9785,3.8994,15.5138,1321.8820
+11,multichannelZStack_ratio,2.3707,4.1572,9.8554,839.7535,3.2392,3.0395,9.8455,838.9058
+12,multichannelZStack_ratio,2.3355,3.1928,7.4567,635.3647,1.7017,3.0066,5.1164,435.9577
+13,multichannelZStack_ratio,0.9858,1.4639,1.4431,122.9663,0.7042,1.6406,1.1552,98.4333
