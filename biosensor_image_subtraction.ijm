@@ -122,7 +122,7 @@ selectWindow("Result of "+numImage);
 rename("Sum");
 setAutoThreshold(Thresh_Method+" dark stack");
 print("Threshold used:",Thresh_Method);
-run("Convert to Mask", "method=&Thresh_Method background=Dark black");
+run("Convert to Mask", "method="+Thresh_Method+" background=Dark black");
 
 // save the 8-bit mask, then divide by 255 to generate a 0,1 mask
 selectWindow("Sum");
