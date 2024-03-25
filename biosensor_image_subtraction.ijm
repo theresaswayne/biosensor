@@ -139,6 +139,7 @@ selectWindow("Result of "+numImage);
 rename("Masked Num");
 selectWindow("Masked Num");
 setThreshold(numNoise, 1000000000000000000000000000000.0000); 
+run("NaN Background", "stack");
 
 imageCalculator("Multiply create 32-bit stack", denomImage, "Mask");
 selectWindow("Result of "+denomImage);
