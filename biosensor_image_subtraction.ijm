@@ -109,10 +109,14 @@ else if (Background_Method == "None") {
 selectWindow(numImage);
 run("Select None");
 run("Subtract...", "value="+numBG+" stack");
+//saveAs("Tiff", outputDir  + File.separator + basename + "_num_sub.tif");
+//rename(numImage);
 
 selectWindow(denomImage);
 run("Select None");
 run("Subtract...", "value="+denomBG+" stack");
+//saveAs("Tiff", outputDir  + File.separator + basename + "_denom_sub.tif");
+//rename(denomImage);
 
 // ---- Segmentation and ratioing ----
 
@@ -139,6 +143,9 @@ selectWindow("Result of "+numImage);
 rename("Masked Num");
 selectWindow("Masked Num");
 setThreshold(numNoise, 1000000000000000000000000000000.0000); 
+run("NaN Background", "stack");
+//saveAs("Tiff", outputDir  + File.separator + basename + "_num_masked.tif");
+//rename("Masked Num");
 
 imageCalculator("Multiply create 32-bit stack", denomImage, "Mask");
 selectWindow("Result of "+denomImage);
@@ -146,6 +153,8 @@ rename("Masked Denom");
 selectWindow("Masked Denom");
 setThreshold(denomNoise, 1000000000000000000000000000000.0000); 
 run("NaN Background", "stack");
+//saveAs("Tiff", outputDir  + File.separator + basename + "_denom_masked.tif");
+//rename("Masked Denom");
 
 // calculate the ratio image
 imageCalculator("Divide create 32-bit stack", "Masked Num","Masked Denom");
