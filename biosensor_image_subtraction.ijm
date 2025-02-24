@@ -120,6 +120,8 @@ run("Subtract...", "value="+denomBG+" stack");
 imageCalculator("Add create 32-bit stack", numImage,denomImage);
 selectWindow("Result of "+numImage);
 rename("Sum");
+run("Duplicate...", "title=Sum_copy"); // make a copy for selecting cells later
+selectWindow("Sum");
 setAutoThreshold(Thresh_Method+" dark stack");
 print("Threshold used:",Thresh_Method);
 run("Convert to Mask", "method="+Thresh_Method+" background=Dark black");
@@ -161,7 +163,7 @@ if (Channel_Trans != 0) {
 	selectWindow(transImage);
 	}
 else {
-	selectWindow(Sum);
+	selectWindow("Sum_copy");
 	}
 setTool("freehand");
 middleSlice = round(slices/2);
